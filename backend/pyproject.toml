@@ -1,0 +1,17 @@
+[project]
+name = "YGOEvaluator"
+version = "0.1.0"
+description = "Yu-Gi-Oh Evaluator"
+requires-python = ">=3.14"
+dependencies = [
+
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "app"]
+testpaths = ["tests"]
