@@ -15,27 +15,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, auto
 
-from core.Player import Player
-from core.Zones import ZoneType, FieldZone, PileZone
+from app.core.Player import Player
+from app.core.PlayerAction import PlayerAction, Actions
+from app.core.Zones import ZoneType, FieldZone, PileZone
+from app.type_defs.TurnPhase import TurnPhase
 
-class TurnPhase(Enum):
-  S_DRAW_PHASE = auto()
-  DRAW_PHASE = auto()
-  E_DRAW_PHASE = auto()
-  S_STANDBY_PHASE = auto()
-  STANDBY_PHASE = auto()
-  E_STANDBY_PHASE = auto()
-  S_MAIN_PHASE_1 = auto()
-  MAIN_PHASE_1 = auto()
-  E_MAIN_PHASE_1 = auto()
-  S_BATTLE_PHASE = auto()
-  BATTLE_PHASE = auto()
-  E_BATTLE_PHASE = auto()
-  S_MAIN_PHASE_2 = auto()
-  MAIN_PHASE_2 = auto()
-  E_MAIN_PHASE_2 = auto()
-  S_END_PHASE = auto()
-  END_PHASE = auto()
+from app.type_defs.type_zones import ZoneType
+from app.exceptions.actions.NotFromHandError import NotFromHandError
+from app.exceptions.actions.NotToMonsterZoneError import NotToMonsterZoneError
 
 @dataclass
 class BoardState:
@@ -55,7 +42,7 @@ class BoardState:
 
   # shared emz
   extra_monster_zones: list[FieldZone] = field(default_factory=lambda: [
-    FieldZone(ZoneType.EXTRA_MONSTER, capacity=1) for _ in range(2)
+    FieldZone(ZoneType.EXTRA_MONSTER_ZONE, capacity=1) for _ in range(2)
   ])
 
   # Canonical phase order. 
@@ -105,3 +92,12 @@ class BoardState:
     
     self.phase = next_phase
     return self.phase
+
+  def handle_player_action(self, pa: PlayerAction):
+    match pa.action:
+      case Actions.NORMAL_SUMMON:
+        if pa.from_zone is not ZoneType.HAND:
+          raise NotFromHandError("You can only normal summon monsters from the hand.")
+        if pa.to_zone is not ZoneType.MONSTER:
+          raise NotToMonsterZoneError("You can only normal summon into a main monster zone.")
+        self.turn_player.normal_summon(pa.card, pa.to_zone)
