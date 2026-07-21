@@ -12,8 +12,10 @@ class Player:
   """
   The player class, holds all information relating to a specifc player.
   """
+  # turn-specific resources
   name: str
   life_points: int = 8000
+  normal_summon_used: bool = False
 
   # individually-slotted zones: 5 mz, 5 s/t, 1 fz
   monster_zones: list[FieldZone] = field(default_factory=lambda: [
@@ -23,7 +25,7 @@ class Player:
     FieldZone(ZoneType.SPELL_TRAP, capacity=1) for _ in range(5)
   ])
   field_spell_zones: list[FieldZone] = field(default_factory=lambda: [
-    FieldZone(ZoneType.FIELD_SPELL, capacity=1) for _ in range(2)
+    FieldZone(ZoneType.FIELD_SPELL, capacity=1) for _ in range(1)
   ])
 
   # Other zones
@@ -31,10 +33,7 @@ class Player:
   deck: PileZone = field(default_factory=lambda: PileZone(ZoneType.DECK))
   extra_deck: PileZone = field(default_factory=lambda: PileZone(ZoneType.EXTRA_DECK))
   graveyard: PileZone = field(default_factory=lambda: PileZone(ZoneType.GRAVEYARD))
-  banished: PileZone = field(default_factory=lambda: PileZone(ZoneType.BANISHED))
-
-  # turn-specific resources
-  normal_summon_used: bool = False
+  banishment: PileZone = field(default_factory=lambda: PileZone(ZoneType.BANISHED))
 
   def all_monsters(self) -> list[CardInstance]:
     """
