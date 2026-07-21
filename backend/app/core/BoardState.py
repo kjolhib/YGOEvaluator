@@ -22,6 +22,7 @@ from app.type_defs.TurnPhase import TurnPhase
 from app.type_defs.type_zones import ZoneType
 from app.exceptions.actions.NotFromHandError import NotFromHandError
 from app.exceptions.actions.NotToMonsterZoneError import NotToMonsterZoneError
+from app.exceptions.actions.NotToSTZoneError import NotToSpellTrapZoneError
 
 @dataclass
 class BoardState:
@@ -92,10 +93,17 @@ class BoardState:
     self.phase = next_phase
     return self.phase
 
-  def handle_player_action(self, pa: PlayerAction):
+  def handle_player_action(self, pa: PlayerAction) -> None:
     """
     Determines what type of action the player attempted to execute.
+
+    Args:
+      pa (PlayerAction): the player action class that contains information about the action the player wants to execute
+
+    Returns:
+      None
     """
+    # TODO: Check floodgate/lingering conditions imposed upon the player before attempting to do this. This can be implemented here or in the player class, a future me problem to identify
     match pa.action:
       case PlayerActions.NORMAL_SUMMON:
         if pa.from_zone is not ZoneType.HAND:
@@ -103,3 +111,13 @@ class BoardState:
         if pa.to_zone is not ZoneType.MONSTER:
           raise NotToMonsterZoneError("You can only normal summon into a main monster zone.")
         self.turn_player.normal_summon(pa.card, pa.to_zone)
+      case PlayerActions.ACTIVATE_ST_CARD:
+        # From zone must be from the hand, since it's activating a CARD. 
+        # To see any effect activation, see ACTIVATE_EFFECT
+        if pa.from_zone is not ZoneType.HAND:
+          raise NotFromHandError("You can only activate a card from the hand.")
+        
+        if pa.to_zone is not ZoneType.SPELL_TRAP:
+          raise NotToSpellTrapZoneError("You can only activate a spell/trap card into a spell/trap zone.")
+        
+        self.turn_player.activate_card(pa.card, pa.to_zone)

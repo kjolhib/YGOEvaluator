@@ -78,3 +78,20 @@ class Player:
     # set the position to be face up atk
     card_instance.current_position = Position.FACE_UP_ATK
     print(f"Player {self.name} normal summoned {card_instance}")
+
+  def activate_card(self, card_instance: CardInstance, zone: FieldZone) -> None:
+    """
+    Activates a card.
+
+    Currently just places the card in the zone.
+
+    Args:
+      card_instance (CardInstance): the card to activate
+      zone (FieldZone): the target field zone 
+
+    Returns:
+      None
+    """
+    # TODO: Decide whether or not to move `activate` into the card instance instead. That way, it's easier to check conditions. 
+    card_type = card_instance.card.card_type
+
