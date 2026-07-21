@@ -1,7 +1,3 @@
-import sys
-for p in sys.path:
-  print(p)
-
 import pytest
 
 from app.core.BoardState import BoardState, TurnPhase

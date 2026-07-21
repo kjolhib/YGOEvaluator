@@ -1,27 +1,8 @@
-from enum import Enum, auto
 from dataclasses import dataclass, field
 from typing import Optional
 
-from core.Card import CardInstance
-
-class ZoneType(Enum):
-  MONSTER = auto()
-  SPELL_TRAP = auto()
-  EXTRA_MONSTER = auto()
-  HAND = auto()
-  FIELD_SPELL = auto()
-  GRAVEYARD = auto()
-  BANISHED = auto()
-  DECK = auto()
-  EXTRA_DECK = auto()
-
-# Zone types that are physically part of the field: single-card slots
-FIELD_ZONE_TYPES: frozenset[ZoneType] = frozenset({
-  ZoneType.MONSTER,
-  ZoneType.SPELL_TRAP,
-  ZoneType.EXTRA_MONSTER,
-  ZoneType.FIELD_SPELL
-})
+from app.core.Card import CardInstance
+from app.type_defs.type_zones import ZoneType, FIELD_ZONE_TYPES
 
 @dataclass
 class Zone:
@@ -106,3 +87,6 @@ class PileZone(Zone):
     """
     import random
     random.shuffle(self.cards)
+
+# TODO: add spell/trap, and monster zone as children Zones?
+
