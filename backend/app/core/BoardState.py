@@ -13,11 +13,10 @@ This file holds all classes required to hold information regarding a single boar
 
 from __future__ import annotations
 from dataclasses import dataclass, field
-from enum import Enum, auto
 
 from app.core.Player import Player
-from app.core.PlayerAction import PlayerAction, Actions
-from app.core.Zones import ZoneType, FieldZone, PileZone
+from app.core.PlayerAction import PlayerAction, PlayerActions
+from app.core.Zones import ZoneType, FieldZone
 from app.type_defs.TurnPhase import TurnPhase
 
 from app.type_defs.type_zones import ZoneType
@@ -94,8 +93,11 @@ class BoardState:
     return self.phase
 
   def handle_player_action(self, pa: PlayerAction):
+    """
+    Determines what type of action the player attempted to execute.
+    """
     match pa.action:
-      case Actions.NORMAL_SUMMON:
+      case PlayerActions.NORMAL_SUMMON:
         if pa.from_zone is not ZoneType.HAND:
           raise NotFromHandError("You can only normal summon monsters from the hand.")
         if pa.to_zone is not ZoneType.MONSTER:

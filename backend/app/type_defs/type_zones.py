@@ -1,6 +1,11 @@
 from enum import Enum, auto
 
 class ZoneType(Enum):
+  """
+  Enum containing the typing of a zone on a field.
+
+  E.g. monster, spell/trap, extra monster, hand, field, GY, ..., zones
+  """
   MONSTER = auto()
   SPELL_TRAP = auto()
   EXTRA_MONSTER_ZONE = auto()

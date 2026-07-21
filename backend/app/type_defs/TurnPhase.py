@@ -2,6 +2,11 @@ from enum import Enum, auto
 
 
 class TurnPhase(Enum):
+  """
+  Enum containing all the phases of each turn.
+
+  E.g. Draw phase, Standby, etc.
+  """
   S_DRAW_PHASE = auto()
   DRAW_PHASE = auto()
   E_DRAW_PHASE = auto()

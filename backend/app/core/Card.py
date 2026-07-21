@@ -1,6 +1,5 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from enum import Enum, auto
 from typing import Optional
 
 from app.type_defs.type_cards import Position, CardType
@@ -8,6 +7,11 @@ from app.type_defs.type_zones import ZoneType
 
 @dataclass(frozen=True)
 class Card:
+  """
+  Raw card data. 
+
+  Used by `CardInstance`.
+  """
   name: str
   card_type: CardType
   card_id: Optional[int] = None

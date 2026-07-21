@@ -8,6 +8,9 @@ from app.exceptions.actions.NotMainMonsterError import NotMainMonsterError
 
 @dataclass
 class Player:
+  """
+  The player class, holds all information relating to a specifc player.
+  """
   name: str
   life_points: int = 8000
 
