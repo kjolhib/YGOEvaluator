@@ -7,5 +7,5 @@ class PlayerActions(Enum):
   E.g. normal summon, activate card, set card
   """
   NORMAL_SUMMON = auto()
-  ACTIVATE_CARD = auto()
+  ACTIVATE_ST_CARD = auto()
   SET_CARD = auto()

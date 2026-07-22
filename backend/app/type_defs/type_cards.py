@@ -12,6 +12,11 @@ class Position(Enum):
   FACE_DOWN_ST = auto()
   FACE_UP_ST = auto()
   FACE_DOWN_BNSHED = auto()
+  IN_HAND = auto()
+  IN_DECK = auto()
+  IN_GY = auto()
+  IN_BNSHMT = auto()
+  IN_ED = auto()
 
 class CardType(Enum):
   """
