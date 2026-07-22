@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 
 from app.core.Player import Player
 from app.core.PlayerAction import PlayerAction, PlayerActions
-from app.core.Zones import ZoneType, FieldZone
+from app.core.Zones import FieldZone
 from app.type_defs.TurnPhase import TurnPhase
 
 from app.type_defs.type_zones import ZoneType
@@ -110,7 +110,8 @@ class BoardState:
           raise NotFromHandError("You can only normal summon monsters from the hand.")
         if pa.to_zone is not ZoneType.MONSTER:
           raise NotToMonsterZoneError("You can only normal summon into a main monster zone.")
-        self.turn_player.normal_summon(pa.card, pa.to_zone)
+        target_zone = self.turn_player.get_open_zone(pa.to_zone)
+        self.turn_player.normal_summon(pa.card, target_zone)
       case PlayerActions.ACTIVATE_ST_CARD:
         # From zone must be from the hand, since it's activating a CARD. 
         # To see any effect activation, see ACTIVATE_EFFECT
@@ -120,4 +121,14 @@ class BoardState:
         if pa.to_zone is not ZoneType.SPELL_TRAP:
           raise NotToSpellTrapZoneError("You can only activate a spell/trap card into a spell/trap zone.")
         
-        self.turn_player.activate_card(pa.card, pa.to_zone)
+        target_zone = self.turn_player.get_open_zone(pa.to_zone)
+        self.turn_player.activate_st_card(pa.card, target_zone)
+      case PlayerActions.SET_CARD:
+        # Zone validation is deliberately minimal here: unlike NORMAL_SUMMON/ACTIVATE_ST_CARD,
+        # a legal `to_zone` for SET_CARD depends on the card's type (monster -> MONSTER zone,
+        # spell/trap -> SPELL_TRAP zone), so that check is delegated to `Player.set_card`.
+        if pa.from_zone is not ZoneType.HAND:
+          raise NotFromHandError("You can only set a card from the hand.")
+
+        target_zone = self.turn_player.get_open_zone(pa.to_zone)
+        self.turn_player.set_card(pa.card, target_zone)

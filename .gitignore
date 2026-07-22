@@ -13,3 +13,6 @@ tmp/
 
 # python
 __pycache__
+
+# internal plans
+plan/

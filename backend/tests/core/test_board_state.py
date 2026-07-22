@@ -10,10 +10,10 @@ def board():
   return BoardState(player1, player2)
 
 def test_basic_init(board: BoardState):
-  assert board.turn_player.name is "p1"
+  assert board.turn_player.name == "p1"
   assert board.phase is TurnPhase.S_DRAW_PHASE
-  assert board.turn_number is 1
-  assert len(board.extra_monster_zones) is 2
+  assert board.turn_number == 1
+  assert len(board.extra_monster_zones) == 2
 
 def test_next_turn(board: BoardState):
   assert board.phase is TurnPhase.S_DRAW_PHASE
@@ -23,7 +23,7 @@ def test_next_turn(board: BoardState):
   assert board.phase is TurnPhase.END_PHASE
   
   board.advance_phase()
-  assert board.turn_number is 2
+  assert board.turn_number == 2
   assert board.phase is TurnPhase.S_DRAW_PHASE
 
 def test_advance_phase(board: BoardState):
