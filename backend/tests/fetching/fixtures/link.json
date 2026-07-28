@@ -1,0 +1,15 @@
+{
+  "id": 10000004,
+  "name": "Test Link Monster",
+  "type": "Link Monster",
+  "frameType": "link",
+  "desc": "Synthetic fixture: a Link Monster, used only to test that linkval/linkmarkers are preserved and that the (real, API-accurate) absence of 'def' and 'level' on Link Monsters is respected by the trim function.",
+  "atk": 2400,
+  "race": "Cyberse",
+  "attribute": "DARK",
+  "linkval": 3,
+  "linkmarkers": ["Top", "Bottom-Left", "Bottom-Right"],
+  "card_images": [
+    {"id": 10000004, "image_url": "https://images.ygoprodeck.com/images/cards/10000004.jpg"}
+  ]
+}

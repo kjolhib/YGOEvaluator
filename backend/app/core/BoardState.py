@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from app.core.Player import Player
 from app.core.PlayerAction import PlayerAction, PlayerActions
 from app.core.Zones import FieldZone
-from app.type_defs.TurnPhase import TurnPhase
+from backend.app.type_defs.turn_phase import TurnPhase
 
 from app.type_defs.type_zones import ZoneType
 from app.exceptions.actions.NotFromHandError import NotFromHandError

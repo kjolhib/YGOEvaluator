@@ -1,0 +1,23 @@
+{
+  "id": 14558127,
+  "name": "Ash Blossom & Joyous Spring",
+  "type": "Effect Monster",
+  "frameType": "effect",
+  "desc": "If you would Special Summon a monster(s), except during the Damage Step (Quick Effect): You can discard this card; negate that Special Summon, then if this effect was activated using a card that was sent to the GY to activate its effect, banish that card. You can only use this effect of \"Ash Blossom & Joyous Spring\" once per turn.",
+  "atk": 0,
+  "def": 1800,
+  "level": 3,
+  "race": "Zombie",
+  "attribute": "FIRE",
+  "archetype": "Ash Blossom",
+  "ygoprodeck_url": "https://ygoprodeck.com/card/ash-blossom-joyous-spring-8388",
+  "card_sets": [
+    {"set_name": "Flames of Destruction", "set_code": "FLOD-EN019", "set_rarity": "Ultra Rare"}
+  ],
+  "card_images": [
+    {"id": 14558127, "image_url": "https://images.ygoprodeck.com/images/cards/14558127.jpg"}
+  ],
+  "card_prices": [
+    {"cardmarket_price": "1.00", "tcgplayer_price": "1.50"}
+  ]
+}

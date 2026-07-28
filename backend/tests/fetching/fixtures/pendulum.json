@@ -1,0 +1,17 @@
+{
+  "id": 10000002,
+  "name": "Test Pendulum Dragon",
+  "type": "Pendulum Effect Monster",
+  "frameType": "effect_pendulum",
+  "desc": "Synthetic fixture: a pendulum monster, used only to test that the pendulum-only 'scale' field is preserved by the trim function.",
+  "atk": 2500,
+  "def": 2000,
+  "level": 7,
+  "race": "Dragon",
+  "attribute": "FIRE",
+  "scale": 4,
+  "archetype": "Test Archetype",
+  "card_images": [
+    {"id": 10000002, "image_url": "https://images.ygoprodeck.com/images/cards/10000002.jpg"}
+  ]
+}

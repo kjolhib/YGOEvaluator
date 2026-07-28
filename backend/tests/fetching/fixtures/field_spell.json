@@ -1,0 +1,12 @@
+{
+  "id": 10000001,
+  "name": "Test Field Spell",
+  "type": "Spell Card",
+  "frameType": "spell",
+  "desc": "Synthetic fixture: a field spell, used only to test that race='Field' is preserved by the trim function (this is what distinguishes a Field Spell from other Spell subtypes in the raw API schema).",
+  "race": "Field",
+  "ygoprodeck_url": "https://ygoprodeck.com/card/test-field-spell",
+  "card_images": [
+    {"id": 10000001, "image_url": "https://images.ygoprodeck.com/images/cards/10000001.jpg"}
+  ]
+}

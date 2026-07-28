@@ -1,0 +1,15 @@
+{
+  "id": 10000003,
+  "name": "Test XYZ Monster",
+  "type": "XYZ Monster",
+  "frameType": "xyz",
+  "desc": "Synthetic fixture: an XYZ monster. YGOPRODeck stores XYZ Rank under the same 'level' key as monster Level, used only to test that this is preserved as-is (no rank/level distinction is made at trim time).",
+  "atk": 2500,
+  "def": 2000,
+  "level": 4,
+  "race": "Warrior",
+  "attribute": "LIGHT",
+  "card_images": [
+    {"id": 10000003, "image_url": "https://images.ygoprodeck.com/images/cards/10000003.jpg"}
+  ]
+}

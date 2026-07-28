@@ -1,0 +1,19 @@
+{
+  "id": 55144522,
+  "name": "Pot of Greed",
+  "type": "Spell Card",
+  "frameType": "spell",
+  "desc": "Draw 2 cards.",
+  "race": "Normal",
+  "ygoprodeck_url": "https://ygoprodeck.com/card/pot-of-greed-536",
+  "card_sets": [
+    {"set_name": "Dark Beginning 1", "set_code": "DB1-EN063", "set_rarity": "Common"}
+  ],
+  "card_images": [
+    {"id": 55144522, "image_url": "https://images.ygoprodeck.com/images/cards/55144522.jpg"}
+  ],
+  "card_prices": [
+    {"cardmarket_price": "0.50", "tcgplayer_price": "0.60"}
+  ],
+  "banlist_info": {"ban_tcg": "Forbidden"}
+}
