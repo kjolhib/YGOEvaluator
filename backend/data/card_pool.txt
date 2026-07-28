@@ -7,6 +7,5 @@
 # hand-picked pool for whichever format you're targeting first
 # (see docs/workflow.md, "Core Design Principle: Format Scoping").
 
-Ash Blossom & Joyous Spring
 Pot of Greed
 Mirror Force

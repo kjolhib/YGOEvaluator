@@ -11,9 +11,19 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-from exceptions.fetching.FetchError import FetchError
+from app.exceptions.fetching.FetchError import FetchError
 
 BASE_URL = "https://db.ygoprodeck.com/api/v7/cardinfo.php"
+
+# YGOPRODeck's server 403s the default urllib User-Agent ("Python-urllib/3.x"),
+# which reads as a generic bot to whatever's in front of it (Cloudflare etc.).
+# A normal-looking UA is enough to get through; this isn't about disguising
+# the client's intent, just avoiding a blanket bot-UA block on an API that's
+# otherwise happy to be scripted against (see docs/fetcher/fetcher.md).
+REQUEST_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (compatible; YGOEvaluator/0.1; +https://github.com/)",
+  "Accept": "application/json",
+}
 
 # A few dozen names per request is well under any practical URL-length limit. 
 # Keeping this conservative also keeps us far under the 20 req/sec rate limit.
@@ -42,9 +52,10 @@ def _fetch_batch(names: list[str]) -> list[dict[str, Any]]:
   """
   query = "|".join(names)
   url = f"{BASE_URL}?{urllib.parse.urlencode({'name': query})}"
+  request = urllib.request.Request(url, headers=REQUEST_HEADERS)
 
   try:
-    with urllib.request.urlopen(url) as response:
+    with urllib.request.urlopen(request) as response:
       payload = json.loads(response.read().decode("utf-8"))
   except urllib.error.HTTPError as e:
     # YGOPRODeck returns a non-200 with an {"error": "..."} body when nothing in the batch matches
