@@ -1,9 +1,9 @@
 from dataclasses import dataclass, field
 
 from app.core.Zones import ZoneType, FieldZone, PileZone
-from app.core.Card import CardInstance, CardType
+from app.static.Card import CardInstance, CardType
 
-from app.type_defs.type_cards import Position
+from app.type_defs.type_cards import Position, MAIN_DECK_MONSTER_TYPES
 from app.exceptions.actions.NotMainMonsterError import NotMainMonsterError
 from app.exceptions.actions.NotToMonsterZoneError import NotToMonsterZoneError
 from app.exceptions.actions.NotToSTZoneError import NotToSpellTrapZoneError
@@ -101,7 +101,7 @@ class Player:
     if zone_type is not ZoneType.MONSTER:
       raise NotToMonsterZoneError("You can only normal summon into a main monster zone.")
     
-    if card_type is not CardType.MONSTER:
+    if card_type not in MAIN_DECK_MONSTER_TYPES:
       raise NotMainMonsterError("You can only normal summon a main-deck monster.")
     
     self.normal_summon_used = True
@@ -158,7 +158,7 @@ class Player:
     zone_type = zone.zone_type
 
     match card_type:
-      case CardType.MONSTER:
+      case _ if card_type in MAIN_DECK_MONSTER_TYPES:
         if zone_type is not ZoneType.MONSTER:
           raise NotToMonsterZoneError("You can only set a monster into a main monster zone.")
 
