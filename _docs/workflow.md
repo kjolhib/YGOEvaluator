@@ -1,4 +1,6 @@
 # Yu-Gi-Oh Decision Evaluator — Workflow & Architecture Notes
+status: [basic_evaluator]
+last updated: 30-07-2026
 
 ## Project Goal
 
@@ -44,7 +46,7 @@ Nor do I want to build something that completely takes over the player. I want t
 
 That being said, the classification of boards isn't deterministic. It is heavily dynamic and chnages with the simplest board interactions. The prospect of creating an AI trained on Yugioh data integrated into this project *is* a pipe-dream I have. 
 
-## Competitive Landscape (Niche Check)
+## Competitive Landscape
 
 - **Deck builders / meta tools** (YGOPRODeck, Dueling Nexus, EdoPro, etc.) — focus on
   deckbuilding, synergy, and meta analysis. Not in-duel decision evaluation.
@@ -74,6 +76,25 @@ I will try to include as many rogue decks as possible per format, but there's al
 
 This is the project's main extensibility story: adding support for a new format means adding a new config, not modifying the engine. 
 This however does mean that this project cannot view or provide a service for classifying some random board given the entire card pool of Yugioh. But I believe this can be extended as another config, and I just don't think I'll have the time or resources to do that.
+
+### Data Storage
+
+Card pools, registries (e.g. `DisruptionSource` entries), and format configs
+currently live as hand-edited flat files (`card_pool.txt`, `cards.json`,
+small Python dict literals for registries) -- deliberately, since these are
+edited by hand at the scale of one format's worth of cards (~50-100) and
+flat files are easy to diff/review in git.
+
+If the number of formats, or the size of any one format's data, grows large
+enough that flat-file lookups or cross-format querying become genuinely
+painful, **SQLite** (stdlib, zero install, single file) is the natural next
+step -- one format database holding its card list and disruption registry
+together, queryable with real joins, still a single portable file. This
+isn't needed now and shouldn't be built ahead of that need, but it's a
+cheap, low-commitment upgrade path to keep in mind rather than something
+that would require a rearchitecture later. `Card.id` (the YGOPRODeck numeric
+ID already present on every `Card`) is the natural primary/foreign key for
+this if it happens -- no new ID scheme needs to be invented for it.
 
 ## Architecture: Four Layers
 
