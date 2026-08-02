@@ -36,6 +36,10 @@ class DisruptionCategory(Enum):
   membership check against this enum, not a subclass check.
   """
   OMNI_NEGATE = auto()
+  SPELL_NEGATE = auto()
+  TRAP_NEGATE = auto()
+  SPELL_TRAP_NEGATE = auto()
+  MONSTER_NEGATE = auto()
   TARGETED_REMOVAL = auto()
   HANDTRAP = auto()
   FLOODGATE = auto()
