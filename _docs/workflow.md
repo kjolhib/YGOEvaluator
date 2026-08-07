@@ -133,8 +133,11 @@ handed to the evaluator without side-effect concerns.
 Separate from the engine by design — reads `BoardState` only, never mutates
 it.
 
-- `DisruptionSource` — registry entry: "this card type, in this zone, under
-  these conditions, represents a live disruption."
+- `DisruptionSource` — registry entry: "this card, in this (zone, position),
+  under these conditions, represents a live disruption." Both zone and
+  position matter independently -- a face-down monster or a Trap Card still
+  in hand isn't live even if the same card is a registered disruption in
+  some other state. See `_docs/backend/evaluator/DisruptionSource.md`.
 - `DisruptionType` - provides distinct classifications of disruptions.
   - For example, a Baronne is considered an `ActiveDisruption`.
   - Cupsy Yummy Way is considered a `PotentialDisruption`.
