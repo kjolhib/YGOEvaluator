@@ -16,3 +16,8 @@ __pycache__
 
 # internal plans
 plan/
+
+# data
+backend/data/*
+# except example_data folder, used for testing
+!backend/data/example_data/

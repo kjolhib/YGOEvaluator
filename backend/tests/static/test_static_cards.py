@@ -26,13 +26,13 @@ def test_card_from_raw_maps_def_to_defense():
 
 
 def test_load_cards_reads_checked_in_cards_json():
-  cards_path = Path(__file__).resolve().parents[1] / ".." / "data" / "cards.json"
+  cards_path = Path(__file__).resolve().parents[1] / ".." / "data" / "example_data" / "cards.json"
 
   cards = load_cards(cards_path)
 
   assert len(cards) == 2
-  assert [card.name for card in cards] == ["Mirror Force", "Pot of Greed"]
-  assert cards[0].card_type is CardType.TRAP
+  assert [card.name for card in cards] == ["Ash Blossom & Joyous Spring", "Pot of Greed"]
+  assert cards[0].card_type is CardType.EFFECT_MONSTER
   assert cards[1].card_type is CardType.SPELL
 
 

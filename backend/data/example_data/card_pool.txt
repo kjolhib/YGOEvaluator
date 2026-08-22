@@ -1,0 +1,14 @@
+# Example of what a card pool may look like. 
+# Real file should be named: card_pool.txt, found in `backend/data/<format name>/card_pool.txt`.
+# The fetched data is also stored in `backend/data/<format name>/cards.json`.
+
+# It should also live inside of a format folder, e.g. Ryzeal_2024/card_pool.txt.
+# This makes it very easy to automate the format and the relevant cards present in it. Also modularises things so we don't have to re-populate card_pool.txt every time.
+
+# Comments here are NOT added or interpreted in ANY way. They are purely here to make sure other people working on this will have an idea. 
+# Also here so I know wtf I was thinking when I did something stupid lol
+
+# Hand traps
+Ash Blossom & Joyous Spring # exact name required
+Pot of Greed
+
