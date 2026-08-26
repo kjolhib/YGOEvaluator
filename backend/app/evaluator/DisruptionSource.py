@@ -30,7 +30,7 @@ class DisruptionSource:
   `FACE_UP_ATK`, never a face-down state.
 
   A (zone, position) combination simply absent from this dict means the
-  card serves no purpose in that state. E.g. Solemn Judgment maps only
+  card serves no purpose in that state. E.g. Solemn Judgement maps only
   `{(SPELL_TRAP, FACE_DOWN_ST): ACTIVE_DISRUPTION}`; it's not a disruption
   of any kind while in hand, regardless of position.
 
@@ -63,7 +63,7 @@ def lookup_disruption(
     a key in that entry's `disruption_by_zone`; `None` otherwise
     (unregistered card, or registered but not currently in a (zone,
     position) state where it's live -- e.g. Ash Blossom already discarded
-    to GY, Solemn Judgment still in hand, or a set trap that's since
+    to GY, Solemn Judgement still in hand, or a set trap that's since
     flipped face-up).
   """
   source = registry.get(card_instance.card.name)

@@ -56,7 +56,7 @@ def test_registry_entries_construct_correctly():
   assert DISRUPTION_REGISTRY["Baronne de Fleur"].opt_scope is OncePerTurnScope.HARD
   assert DISRUPTION_REGISTRY["Infernity Barrier"].opt_scope is OncePerTurnScope.SOFT
 
-  # Solemn Judgment: deliberately has no HAND state at all -- see the
+  # Solemn Judgement: deliberately has no HAND state at all -- see the
   # "zone absence" tests below
   solemn_zones = {zone_type for zone_type, _position in DISRUPTION_REGISTRY["Solemn Judgment"].disruption_by_zone}
   assert ZoneType.HAND not in solemn_zones
@@ -156,21 +156,21 @@ def test_evaluate__zone_outside_disruption_by_zone_produces_no_finding(board):
 
 ########### BOARDEVALUATOR: ZONE ABSENCE (a real omni negate, wrong zone entirely) ###########
 
-def test_evaluate__solemn_judgment_in_hand_produces_no_finding(board):
-  # Solemn Judgment is a real omni negate, but Trap Cards can't be activated
+def test_evaluate__solemn_judgement_in_hand_produces_no_finding(board):
+  # Solemn Judgement is a real omni negate, but Trap Cards can't be activated
   # straight from hand -- they must be Set first. Its registry entry has no
   # HAND key at all, so sitting in hand it isn't a disruption of any kind,
   # not even POTENTIAL_DISRUPTION.
-  ci = _make_instance("Solemn Judgment", CardType.TRAP, ZoneType.HAND, Position.IN_HAND)
+  ci = _make_instance("Solemn Judgement", CardType.TRAP, ZoneType.HAND, Position.IN_HAND)
   board.player.hand.cards.append(ci)
 
   findings = evaluate(board)
 
   assert findings == []
 
-def test_evaluate__solemn_judgment_set_produces_a_finding(board):
+def test_evaluate__solemn_judgement_set_produces_a_finding(board):
   # the same card, set into the spell/trap zone, IS live
-  ci = _make_instance("Solemn Judgment", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
+  ci = _make_instance("Solemn Judgement", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
   board.player.spell_trap_zones[0].add(ci)
 
   findings = evaluate(board)

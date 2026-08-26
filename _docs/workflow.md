@@ -1,5 +1,5 @@
 # Yu-Gi-Oh Decision Evaluator — Workflow & Architecture Notes
-status: [basic_evaluator]
+status: [fetcher]
 last updated: 30-07-2026
 
 ## Project Goal
