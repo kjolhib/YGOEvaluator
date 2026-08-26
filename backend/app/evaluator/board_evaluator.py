@@ -1,13 +1,13 @@
 from __future__ import annotations
 from typing import Any
 
-from backend.app.core.board_state import BoardState
+from app.core.board_state import BoardState
 from app.core.player import Player
 from app.static.card import CardInstance
-from backend.app.evaluator.disruption_source import DisruptionSource, lookup_disruption
+from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
 from app.static.disruption_registry import DISRUPTION_REGISTRY
-from backend.app.evaluator.disruption_finding import DisruptionFinding
-from backend.app.static.type_defs.type_disruption import OncePerTurnScope, DisruptionType
+from app.evaluator.disruption_finding import DisruptionFinding
+from app.static.type_defs.type_disruption import OncePerTurnScope, DisruptionType
 
 # Zones scanned for disruptions.
 # Deliberately excludes GY/banishment for now - too complex
@@ -35,7 +35,7 @@ def _collect_instances(player: Player) -> list[CardInstance]:
 
 def _findings_for_player(
   player: Player,
-  registry: dict[str, DisruptionSource],
+  registry: list[DisruptionSource],
 ) -> list[DisruptionFinding]:
   """
   Scans one player's in-scope zones and produces their `DisruptionFinding`s.
@@ -97,14 +97,12 @@ def _findings_for_player(
 def evaluate(
   board_state: BoardState,
   history: Any = None,
-  registry: dict[str, DisruptionSource] = DISRUPTION_REGISTRY,
+  registry: list[DisruptionSource] = DISRUPTION_REGISTRY,
 ) -> list[DisruptionFinding]:
   """
   Scans a `BoardState` snapshot and returns every disruption found on either player's side, cross-referenced against `registry`.
 
   This is a pure lookup against hand-curated data (see `disruption_registry.py`).
-  
-  No card-text parsing, no judgement about how threatening a finding is, no synthesis across findings. See `_docs/plan/_evaluator_plan.md` for the full scope of this pass.
 
   Args:
     board_state (BoardState): the board snapshot to evaluate

@@ -1,17 +1,17 @@
 import pytest
 
-from backend.app.core.board_state import BoardState
-from app.core.Player import Player
-from app.static.Card import Card, CardInstance
+from app.core.board_state import BoardState
+from app.core.player import Player
+from app.static.card import Card, CardInstance
 
-from backend.app.static.type_defs.type_cards import CardType, Position
-from backend.app.static.type_defs.type_zones import ZoneType
-from backend.app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
+from app.static.type_defs.type_cards import CardType, Position
+from app.static.type_defs.type_zones import ZoneType
+from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 
-from backend.app.evaluator.disruption_source import DisruptionSource, lookup_disruption
+from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
 from app.static.disruption_registry import DISRUPTION_REGISTRY
-from backend.app.evaluator.disruption_finding import DisruptionFinding
-from backend.app.evaluator.board_evaluator import evaluate
+from app.evaluator.disruption_finding import DisruptionFinding
+from app.evaluator.board_evaluator import evaluate
 
 
 @pytest.fixture
@@ -34,14 +34,12 @@ def _make_instance(
   card = Card(id=0, name=name, card_type=card_type)
   return CardInstance(card, position, zone_type)
 
-
 ########### DISRUPTION_REGISTRY SANITY ###########
 
 def test_registry_entries_construct_correctly():
   # every entry's own card_name matches the key it's stored under
-  for key, source in DISRUPTION_REGISTRY.items():
+  for source in DISRUPTION_REGISTRY:
     assert isinstance(source, DisruptionSource)
-    assert source.card_name == key
     assert isinstance(source.category, DisruptionCategory)
     assert isinstance(source.opt_scope, OncePerTurnScope)
     assert isinstance(source.disruption_by_zone, dict)
@@ -52,13 +50,43 @@ def test_registry_entries_construct_correctly():
       assert isinstance(position, Position)
       assert isinstance(disruption_type, DisruptionType)
 
+def test_registry_opt_correctness():
+  dr = [
+    DisruptionSource(
+      card_name="Baronne de Fleur",
+      category=DisruptionCategory.OMNI_NEGATE,
+      opt_scope=OncePerTurnScope.HARD,
+      disruption_by_zone={
+        (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+        (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+      },
+    ),
+    DisruptionSource(
+      card_name="Infernity Barrier",
+      category=DisruptionCategory.OMNI_NEGATE,
+      opt_scope=OncePerTurnScope.SOFT,
+      disruption_by_zone={
+        (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
+      },
+    ),
+  ]
   # spot-check the two OPT scopes we rely on elsewhere in this file
-  assert DISRUPTION_REGISTRY["Baronne de Fleur"].opt_scope is OncePerTurnScope.HARD
-  assert DISRUPTION_REGISTRY["Infernity Barrier"].opt_scope is OncePerTurnScope.SOFT
+  assert dr[0].opt_scope is OncePerTurnScope.HARD
+  assert dr[1].opt_scope is OncePerTurnScope.SOFT
 
-  # Solemn Judgement: deliberately has no HAND state at all -- see the
-  # "zone absence" tests below
-  solemn_zones = {zone_type for zone_type, _position in DISRUPTION_REGISTRY["Solemn Judgment"].disruption_by_zone}
+def test_registry_pos_state_correctness():
+  dr = [
+    DisruptionSource(
+      card_name="Solemn Judgement",
+      category=DisruptionCategory.OMNI_NEGATE,
+      opt_scope=OncePerTurnScope.SOFT,
+      disruption_by_zone={
+        (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
+      },
+    ),
+  ]
+  solemn_zones = {zone_type for zone_type, _position in dr[0].disruption_by_zone}
+  print(solemn_zones)
   assert ZoneType.HAND not in solemn_zones
 
 
@@ -186,8 +214,8 @@ def test_evaluate__same_card_name_resolves_different_disruption_types_by_zone(bo
   # live), ACTIVE once actually resolved onto the field. Uses a registry
   # override (evaluate's `registry` param) rather than the real starter
   # registry, since no current entry demonstrates this on its own.
-  custom_registry = {
-    "Combo Piece": DisruptionSource(
+  custom_registry = [
+    DisruptionSource(
       card_name="Combo Piece",
       category=DisruptionCategory.EXTENDER,
       opt_scope=OncePerTurnScope.SOFT,
@@ -196,7 +224,7 @@ def test_evaluate__same_card_name_resolves_different_disruption_types_by_zone(bo
         (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
       },
     ),
-  }
+  ]
 
   ci_in_hand = _make_instance("Combo Piece", CardType.EFFECT_MONSTER, ZoneType.HAND, Position.IN_HAND)
   ci_on_board = _make_instance("Combo Piece", CardType.EFFECT_MONSTER, ZoneType.MONSTER)

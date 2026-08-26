@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 
 from app.fetching.pipeline import build_card_pool
-from backend.app.exceptions.fetching.format_not_specified import FormatNotFoundError
+from app.exceptions.fetching.format_not_specified import FormatNotFoundError
 
 # backend/app/fetching/__main__.py -> parents[2] is backend/
 _BACKEND_ROOT = Path(__file__).resolve().parents[2]

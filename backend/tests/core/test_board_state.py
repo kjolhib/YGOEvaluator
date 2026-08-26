@@ -1,7 +1,7 @@
 import pytest
 
-from backend.app.core.board_state import BoardState, TurnPhase
-from app.core.Player import Player
+from app.core.board_state import BoardState, TurnPhase
+from app.core.player import Player
 
 @pytest.fixture
 def board():

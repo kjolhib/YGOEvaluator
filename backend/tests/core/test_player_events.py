@@ -1,18 +1,18 @@
 import pytest
 
-from app.static.Card import CardInstance, Card
-from app.core.Player import Player
-from app.core.Zones import FieldZone
+from app.static.card import CardInstance, Card
+from app.core.player import Player
+from app.core.zones import FieldZone
 
-from backend.app.static.type_defs.type_cards import CardType, Position
-from backend.app.static.type_defs.type_zones import ZoneType
+from app.static.type_defs.type_cards import CardType, Position
+from app.static.type_defs.type_zones import ZoneType
 
-from backend.app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
-from backend.app.exceptions.actions.not_main_monster_zone_error import NotMainMonsterZoneError
-from backend.app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
-from backend.app.exceptions.actions.not_st_card_error import NotSpellTrapCardError
-from backend.app.exceptions.actions.not_settable_card_error import NotSettableCardError
-from backend.app.exceptions.actions.not_to_field_zone_error import NotToFieldZoneError
+from app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
+from app.exceptions.actions.not_main_monster_zone_error import NotMainMonsterZoneError
+from app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
+from app.exceptions.actions.not_st_card_error import NotSpellTrapCardError
+from app.exceptions.actions.not_settable_card_error import NotSettableCardError
+from app.exceptions.actions.not_to_field_zone_error import NotToFieldZoneError
 
 @pytest.fixture
 def player():

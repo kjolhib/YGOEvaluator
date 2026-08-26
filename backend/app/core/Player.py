@@ -1,15 +1,15 @@
 from dataclasses import dataclass, field
 
-from app.core.Zones import ZoneType, FieldZone, PileZone
-from app.static.Card import CardInstance, CardType
+from app.core.zones import ZoneType, FieldZone, PileZone
+from app.static.card import CardInstance, CardType
 
-from backend.app.static.type_defs.type_cards import Position, MAIN_DECK_MONSTER_TYPES
-from backend.app.exceptions.actions.not_main_monster_zone_error import NotMainMonsterZoneError
-from backend.app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
-from backend.app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
-from backend.app.exceptions.actions.not_st_card_error import NotSpellTrapCardError
-from backend.app.exceptions.actions.not_settable_card_error import NotSettableCardError
-from backend.app.exceptions.actions.not_to_field_zone_error import NotToFieldZoneError
+from app.static.type_defs.type_cards import Position, MAIN_DECK_MONSTER_TYPES
+from app.exceptions.actions.not_main_monster_zone_error import NotMainMonsterZoneError
+from app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
+from app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
+from app.exceptions.actions.not_st_card_error import NotSpellTrapCardError
+from app.exceptions.actions.not_settable_card_error import NotSettableCardError
+from app.exceptions.actions.not_to_field_zone_error import NotToFieldZoneError
 
 @dataclass
 class Player:

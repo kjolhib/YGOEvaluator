@@ -1,7 +1,7 @@
-from backend.app.evaluator.disruption_source import DisruptionSource
-from backend.app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
-from backend.app.static.type_defs.type_zones import ZoneType
-from backend.app.static.type_defs.type_cards import Position
+from app.evaluator.disruption_source import DisruptionSource
+from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
+from app.static.type_defs.type_zones import ZoneType
+from app.static.type_defs.type_cards import Position
 
 # Hand-curated disruption registry.
 #
@@ -15,8 +15,8 @@ from backend.app.static.type_defs.type_cards import Position
 # Keyed by card name -- see `DisruptionSource.card_name`'s docstring context
 # in `_docs/plan/_evaluator_plan.md` for why name (not a synthetic ID) is
 # the stable key here.
-DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
-  "Ash Blossom & Joyous Spring": DisruptionSource(
+DISRUPTION_REGISTRY: list[DisruptionSource] = [
+  DisruptionSource(
     card_name="Ash Blossom & Joyous Spring",
     category=DisruptionCategory.HANDTRAP,
     opt_scope=OncePerTurnScope.HARD,
@@ -24,7 +24,7 @@ DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
       (ZoneType.HAND, Position.IN_HAND): DisruptionType.ACTIVE_DISRUPTION,
     },
   ),
-  "Baronne de Fleur": DisruptionSource(
+  DisruptionSource(
     card_name="Baronne de Fleur",
     category=DisruptionCategory.OMNI_NEGATE,
     opt_scope=OncePerTurnScope.HARD,
@@ -33,7 +33,7 @@ DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
       (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
     },
   ),
-  "Infernity Barrier": DisruptionSource(
+  DisruptionSource(
     card_name="Infernity Barrier",
     category=DisruptionCategory.OMNI_NEGATE,
     opt_scope=OncePerTurnScope.SOFT,
@@ -41,7 +41,7 @@ DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
       (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
     },
   ),
-  "Dark Paladin": DisruptionSource(
+  DisruptionSource(
       card_name="Dark Paladin",
       category=DisruptionCategory.SPELL_NEGATE,
       opt_scope=OncePerTurnScope.SOFT,
@@ -53,7 +53,7 @@ DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
         (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
       },
     ),
-  "Mirror Force": DisruptionSource(
+  DisruptionSource(
     card_name="Mirror Force",
     category=DisruptionCategory.BOARD_BREAKER,
     opt_scope=OncePerTurnScope.SOFT,
@@ -61,7 +61,7 @@ DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
       (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
     },
   ),
-  "Mitsurugi Great Purification": DisruptionSource(
+  DisruptionSource(
       card_name="Mitsurugi Great Purification",
       category=DisruptionCategory.OMNI_NEGATE,
       opt_scope=OncePerTurnScope.HARD,
@@ -69,7 +69,7 @@ DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
         (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
       },
     ),
-  "Solemn Judgement": DisruptionSource(
+  DisruptionSource(
     card_name="Solemn Judgement",
     category=DisruptionCategory.OMNI_NEGATE,
     opt_scope=OncePerTurnScope.SOFT,
@@ -77,4 +77,4 @@ DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
       (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
     },
   ),
-}
+]

@@ -2,9 +2,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
-from backend.app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
-from backend.app.static.type_defs.type_zones import ZoneType
-from backend.app.static.type_defs.type_cards import Position
+from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
+from app.static.type_defs.type_zones import ZoneType
+from app.static.type_defs.type_cards import Position
 from app.static.card import CardInstance
 
 @dataclass(frozen=True)
@@ -42,7 +42,7 @@ class DisruptionSource:
 
 def lookup_disruption(
   card_instance: CardInstance,
-  registry: dict[str, DisruptionSource],
+  registry: list[DisruptionSource],
 ) -> Optional[DisruptionSource]:
   """
   Static lookup: is this specific `CardInstance` currently a live, registered disruption?
@@ -66,7 +66,7 @@ def lookup_disruption(
     to GY, Solemn Judgement still in hand, or a set trap that's since
     flipped face-up).
   """
-  source = registry.get(card_instance.card.name)
+  source = next((src for src in registry if src.card_name == card_instance.card.name), None)
   if source is None:
     return None
 

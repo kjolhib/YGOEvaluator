@@ -1,10 +1,10 @@
 from __future__ import annotations
 from dataclasses import dataclass
 
-from app.core.Player import Player
-from app.static.Card import CardInstance
-from backend.app.static.type_defs.type_player_action import PlayerActions
-from backend.app.static.type_defs.type_zones import ZoneType
+from app.core.player import Player
+from app.static.card import CardInstance
+from app.static.type_defs.type_player_action import PlayerActions
+from app.static.type_defs.type_zones import ZoneType
 
 @dataclass
 class PlayerAction:

@@ -15,14 +15,14 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from app.core.player import Player
-from backend.app.core.player_action import PlayerAction, PlayerActions
+from app.core.player_action import PlayerAction, PlayerActions
 from app.core.zones import FieldZone
-from backend.app.static.type_defs.turn_phase import TurnPhase
+from app.static.type_defs.turn_phase import TurnPhase
 
-from backend.app.static.type_defs.type_zones import ZoneType
-from backend.app.exceptions.actions.not_from_hand_error import NotFromHandError
-from backend.app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
-from backend.app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
+from app.static.type_defs.type_zones import ZoneType
+from app.exceptions.actions.not_from_hand_error import NotFromHandError
+from app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
+from app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
 
 @dataclass
 class BoardState:

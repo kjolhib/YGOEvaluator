@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 from app.fetching import __main__ as fetch_main
-from backend.app.exceptions.fetching.format_not_specified import FormatNotFoundError
+from app.exceptions.fetching.format_not_specified import FormatNotFoundError
 
 
 def test_main_finds_correct_format_among_multiple(tmp_path: Path, monkeypatch):

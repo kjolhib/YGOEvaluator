@@ -3,8 +3,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
-from backend.app.static.type_defs.type_cards import Position, CardType, EXTRA_DECK_MONSTER_TYPES, map_card_type
-from backend.app.static.type_defs.type_zones import ZoneType
+from app.static.type_defs.type_cards import Position, CardType, EXTRA_DECK_MONSTER_TYPES, map_card_type
+from app.static.type_defs.type_zones import ZoneType
 
 @dataclass(frozen=True)
 class Card:
