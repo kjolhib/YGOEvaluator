@@ -17,7 +17,7 @@ Scan both players' in-scope zones on a `BoardState`, cross-reference each `CardI
 - `_collect_instances(player) -> list[CardInstance]` — flattens every `CardInstance` out of a player's in-scope zones: `hand`, `monster_zones`, `spell_trap_zones`, `field_spell_zones`. Deliberately excludes GY/banishment, and does not scan `BoardState.extra_monster_zones` (the shared EMZ slots live on `BoardState`, not `Player` — see Notes).
 - `_findings_for_player(player, registry) -> list[DisruptionFinding]` — the core scan:
   1. Calls `lookup_disruption` (see `DisruptionSource.md`) on every collected instance.
-  2. Resolves each match's `DisruptionType` via `source.disruption_by_zone[(card_instance.current_zone_type, card_instance.current_position)]`.
+  2. Resolves each match's `DisruptionType` via `source.disruption_by_zone[(card_instance.current_zone_type, card_instance.current_position)]`. If the card is in 
   3. Groups matches by **`(card_name, disruption_type)`**, not just `card_name` — the same name can resolve to different `DisruptionType`s depending on which `(zone, position)` a given copy is in, so two copies in different states must not be merged into one ambiguous group.
   4. For each group: `HARD` scope → one `DisruptionFinding` with `instance_count = len(group)`; `SOFT` scope → one `DisruptionFinding` per instance, each `instance_count = 1`.
 - `evaluate(board_state, history=None, registry=DISRUPTION_REGISTRY) -> list[DisruptionFinding]` — runs `_findings_for_player` for `board_state.player` then `board_state.opponent`, concatenates. Public entry point.
