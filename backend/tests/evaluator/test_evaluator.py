@@ -34,10 +34,21 @@ def _make_instance(
   card = Card(id=0, name=name, card_type=card_type)
   return CardInstance(card, position, zone_type)
 
+def _find_disruption_source(name: str) -> DisruptionSource:
+  """
+  Scans `DISRUPTION_REGISTRY` to find. the card name.
+
+  Args:
+    - name: the name to search for
+
+  Returns:
+    - DisruptionSource: if found, it returns its source disruption
+  """
+  return next(source for source in DISRUPTION_REGISTRY if source.card_name == name)
+
 ########### DISRUPTION_REGISTRY SANITY ###########
 
 def test_registry_entries_construct_correctly():
-  # every entry's own card_name matches the key it's stored under
   for source in DISRUPTION_REGISTRY:
     assert isinstance(source, DisruptionSource)
     assert isinstance(source.category, DisruptionCategory)
@@ -50,29 +61,12 @@ def test_registry_entries_construct_correctly():
       assert isinstance(position, Position)
       assert isinstance(disruption_type, DisruptionType)
 
+    card_names = [source.card_name for source in DISRUPTION_REGISTRY]
+    assert len(card_names) == len(set(card_names)), "duplicate card_name entries in DISRUPTION_REGISTRY"
+
 def test_registry_opt_correctness():
-  dr = [
-    DisruptionSource(
-      card_name="Baronne de Fleur",
-      category=DisruptionCategory.OMNI_NEGATE,
-      opt_scope=OncePerTurnScope.HARD,
-      disruption_by_zone={
-        (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-        (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
-      },
-    ),
-    DisruptionSource(
-      card_name="Infernity Barrier",
-      category=DisruptionCategory.OMNI_NEGATE,
-      opt_scope=OncePerTurnScope.SOFT,
-      disruption_by_zone={
-        (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
-      },
-    ),
-  ]
-  # spot-check the two OPT scopes we rely on elsewhere in this file
-  assert dr[0].opt_scope is OncePerTurnScope.HARD
-  assert dr[1].opt_scope is OncePerTurnScope.SOFT
+  assert _find_disruption_source("Baronne de Fleur").opt_scope is OncePerTurnScope.HARD
+  assert _find_disruption_source("Infernity Barrier").opt_scope is OncePerTurnScope.SOFT
 
 def test_registry_pos_state_correctness():
   dr = [
@@ -86,7 +80,6 @@ def test_registry_pos_state_correctness():
     ),
   ]
   solemn_zones = {zone_type for zone_type, _position in dr[0].disruption_by_zone}
-  print(solemn_zones)
   assert ZoneType.HAND not in solemn_zones
 
 

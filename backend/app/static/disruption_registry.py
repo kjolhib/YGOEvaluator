@@ -5,14 +5,9 @@ from app.static.type_defs.type_cards import Position
 
 # Hand-curated disruption registry.
 #
-# This is data, not logic -- deliberately kept as a plain dict literal so
-# it stays easy to hand-extend, same spirit/scale as `card_pool.txt`. A
-# starter list, not exhaustive; category/type/scope assignments here are
-# illustrative and meant to be refined by hand as the format's actual known
-# disruptions get filled in (see `_docs/workflow.md`'s "Data Storage" and
-# "Core Design Principle: Format Scoping" sections).
+# This is purely data. Each entry is part of the growing number of cards and what they do semantically.
 #
-# Keyed by card name -- see `DisruptionSource.card_name`'s docstring context
+# Keyed by card name. See `DisruptionSource.card_name`'s docstring context
 # in `_docs/plan/_evaluator_plan.md` for why name (not a synthetic ID) is
 # the stable key here.
 DISRUPTION_REGISTRY: list[DisruptionSource] = [

@@ -42,7 +42,7 @@ def _findings_for_player(
 
   Args:
     player: the evaluation results of the player.
-    registry: a dictionary mapping of names to disruption source.
+    registry: a list of disruption sources.
 
   Returns:
     list[DisruptionFinding]: a list of findings regarding the identified disruptions.
