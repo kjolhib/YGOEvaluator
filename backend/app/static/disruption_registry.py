@@ -69,11 +69,6 @@ DISRUPTION_REGISTRY: dict[str, DisruptionSource] = {
         (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
       },
     ),
-  # Illustrative of the zone-absence case: Solemn Judgement is a real omni
-  # negate, but a Trap Card can't be activated straight from HAND (it must
-  # be Set first) -- so HAND is deliberately not a key here at all, not
-  # even POTENTIAL_DISRUPTION. Sitting in hand, it's simply not a
-  # disruption of any kind yet.
   "Solemn Judgement": DisruptionSource(
     card_name="Solemn Judgement",
     category=DisruptionCategory.OMNI_NEGATE,

@@ -1,6 +1,10 @@
-# Yu-Gi-Oh Decision Evaluator — Board State
+# board_state.py
 
-**Path:** `backend/app/core/BoardState.py`
+status: [done]
+last updated: [26-08-2026]
+
+
+**Path:** `backend/app/core/board_state.py`
 
 ## Purpose
 `BoardState` is the top-level Instance-layer object: it holds both players' fields plus turn/phase metadata, and is the primary object the evaluator will eventually read. It owns phase progression and is the entry point for applying a `PlayerAction` to the board.

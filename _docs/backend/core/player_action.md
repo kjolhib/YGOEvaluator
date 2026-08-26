@@ -1,10 +1,10 @@
-# PlayerAction.py
+# player_action.py
 
 status: [done]
 last updated: [29-07-2026]
 
 
-**Path:** `backend/app/core/PlayerAction.py`
+**Path:** `backend/app/core/player_action.py`
 
 ## Context
 The core board model separates a player's requested move from the mutation that applies it. `PlayerAction` describes the requested operation using abstract `ZoneType` values; `BoardState.handle_player_action` resolves a matching concrete `FieldZone` on the active player and delegates the state change to `Player`.

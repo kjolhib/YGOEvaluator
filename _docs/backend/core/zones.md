@@ -1,10 +1,10 @@
-# Zones.py
+# zones.py
 
 status: [done]
-last updated: [29-07-2026]
+last updated: [26-08-2026]
 
 
-**Path:** `backend/app/core/Zones.py`
+**Path:** `backend/app/core/zones.py`
 
 ## Context
 Zones are the containers that hold `CardInstance` objects within a `Player` or `BoardState`. `Player` creates its five main-monster zones, five Spell/Trap zones, field-spell zone, and unlimited pile zones from these classes; `BoardState` separately creates the two shared extra-monster zones.

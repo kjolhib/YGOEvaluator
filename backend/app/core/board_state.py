@@ -14,9 +14,9 @@ This file holds all classes required to hold information regarding a single boar
 from __future__ import annotations
 from dataclasses import dataclass, field
 
-from app.core.Player import Player
-from app.core.PlayerAction import PlayerAction, PlayerActions
-from app.core.Zones import FieldZone
+from app.core.player import Player
+from backend.app.core.player_action import PlayerAction, PlayerActions
+from app.core.zones import FieldZone
 from backend.app.static.type_defs.turn_phase import TurnPhase
 
 from backend.app.static.type_defs.type_zones import ZoneType

@@ -1,6 +1,6 @@
 import pytest
 
-from app.core.BoardState import BoardState
+from backend.app.core.board_state import BoardState
 from app.core.Player import Player
 from app.static.Card import Card, CardInstance
 

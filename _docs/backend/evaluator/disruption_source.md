@@ -1,10 +1,10 @@
-# DisruptionSource.py
+# disruption_source.py
 
 status: [done]
-last updated: [06-08-2026]
+last updated: [26-08-2026]
 
 
-**Path:** `backend/app/evaluator/DisruptionSource.py`
+**Path:** `backend/app/evaluator/disruption_source.py`
 
 ## Context
 `BoardEvaluator` needs to know, for any given `CardInstance` sitting somewhere on a `BoardState`, whether it currently represents a disruption. That knowledge is hand-curated per format (see `_docs/workflow.md`'s "Core Design Principle: Format Scoping" and "Data Storage" sections) rather than derived from card text — this project deliberately does not attempt to parse PSCT.

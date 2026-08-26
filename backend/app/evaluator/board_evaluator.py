@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Any
 
-from app.core.BoardState import BoardState
-from app.core.Player import Player
+from backend.app.core.board_state import BoardState
+from app.core.player import Player
 from app.static.card import CardInstance
 from backend.app.evaluator.disruption_source import DisruptionSource, lookup_disruption
 from app.static.disruption_registry import DISRUPTION_REGISTRY

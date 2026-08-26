@@ -1,7 +1,7 @@
-# DisruptionFinding.py
+# disruption_finding.py
 
 status: [done]
-last updated: [06-08-2026]
+last updated: [26-08-2026]
 
 
 **Path:** `backend/app/evaluator/DisruptionFinding.py`

@@ -1,6 +1,10 @@
-# Yu-Gi-Oh Decision Evaluator — Player Information & Data
+# player.py
 
-**Path:** `backend/app/core/Player.py`
+status: [done]
+last updated: [26-08-2026]
+
+
+**Path:** `backend/app/core/player.py`
 
 ## Attributes
 ### Player metadata:
