@@ -1,6 +1,6 @@
 import pytest
 
-from app.static.card import CardInstance, Card
+from backend.app.static.type_defs.card import CardInstance, Card
 from app.core.player import Player
 from app.core.zones import FieldZone
 

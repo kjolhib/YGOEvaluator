@@ -5,7 +5,7 @@ from typing import Optional
 from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 from app.static.type_defs.type_zones import ZoneType
 from app.static.type_defs.type_cards import Position
-from app.static.card import CardInstance
+from backend.app.static.type_defs.card import CardInstance
 
 @dataclass(frozen=True)
 class DisruptionSource:

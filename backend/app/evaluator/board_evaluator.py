@@ -3,7 +3,7 @@ from typing import Any
 
 from app.core.board_state import BoardState
 from app.core.player import Player
-from app.static.card import CardInstance
+from backend.app.static.type_defs.card import CardInstance
 from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
 from app.static.disruption_registry import DISRUPTION_REGISTRY
 from app.evaluator.disruption_finding import DisruptionFinding
