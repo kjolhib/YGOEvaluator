@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app.core.Player import Player
-from app.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
+from backend.app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 
 @dataclass(frozen=True)
 class DisruptionFinding:

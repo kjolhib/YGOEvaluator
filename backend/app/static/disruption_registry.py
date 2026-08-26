@@ -1,7 +1,7 @@
-from app.evaluator.DisruptionSource import DisruptionSource
-from app.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
-from app.type_defs.type_zones import ZoneType
-from app.type_defs.type_cards import Position
+from backend.app.evaluator.disruption_source import DisruptionSource
+from backend.app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
+from backend.app.static.type_defs.type_zones import ZoneType
+from backend.app.static.type_defs.type_cards import Position
 
 # Hand-curated disruption registry.
 #

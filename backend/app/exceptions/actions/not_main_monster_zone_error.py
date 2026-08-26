@@ -1,6 +1,6 @@
-from app.exceptions.CoreErrors import SoftError
+from backend.app.exceptions.core_errors import SoftError
 
-class NotMainMonsterError(SoftError):
+class NotMainMonsterZoneError(SoftError):
   """
   Exception raised when a `PlayerAction` was attempted when it is only possible if the card instance is a main deck monster.
 

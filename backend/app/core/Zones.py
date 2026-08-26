@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from app.static.Card import CardInstance
-from app.type_defs.type_zones import ZoneType, FIELD_ZONE_TYPES
+from backend.app.static.type_defs.type_zones import ZoneType, FIELD_ZONE_TYPES
 
 @dataclass
 class Zone:

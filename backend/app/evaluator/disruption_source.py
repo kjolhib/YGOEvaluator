@@ -2,10 +2,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
-from app.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
-from app.type_defs.type_zones import ZoneType
-from app.type_defs.type_cards import Position
-from app.static.Card import CardInstance
+from backend.app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
+from backend.app.static.type_defs.type_zones import ZoneType
+from backend.app.static.type_defs.type_cards import Position
+from app.static.card import CardInstance
 
 @dataclass(frozen=True)
 class DisruptionSource:

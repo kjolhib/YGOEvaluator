@@ -5,13 +5,13 @@ from app.core.Player import Player
 from app.core.PlayerAction import PlayerAction
 from app.static.Card import Card, CardInstance
 
-from app.type_defs.type_cards import CardType, Position
-from app.type_defs.type_zones import ZoneType
-from app.type_defs.type_player_action import PlayerActions
+from backend.app.static.type_defs.type_cards import CardType, Position
+from backend.app.static.type_defs.type_zones import ZoneType
+from backend.app.static.type_defs.type_player_action import PlayerActions
 
-from app.exceptions.actions.NotFromHandError import NotFromHandError
-from app.exceptions.actions.NotToMonsterZoneError import NotToMonsterZoneError
-from app.exceptions.actions.NotToSTZoneError import NotToSpellTrapZoneError
+from backend.app.exceptions.actions.not_from_hand_error import NotFromHandError
+from backend.app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
+from backend.app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
 
 @pytest.fixture
 def board():

@@ -3,14 +3,14 @@ from typing import Any
 
 from app.core.BoardState import BoardState
 from app.core.Player import Player
-from app.static.Card import CardInstance
-from app.evaluator.DisruptionSource import DisruptionSource, lookup_disruption
+from app.static.card import CardInstance
+from backend.app.evaluator.disruption_source import DisruptionSource, lookup_disruption
 from app.static.disruption_registry import DISRUPTION_REGISTRY
-from app.evaluator.DisruptionFinding import DisruptionFinding
-from app.type_defs.type_disruption import OncePerTurnScope, DisruptionType
+from backend.app.evaluator.disruption_finding import DisruptionFinding
+from backend.app.static.type_defs.type_disruption import OncePerTurnScope, DisruptionType
 
 # Zones scanned for disruptions.
-# Deliberately excludes GY/banishment for this pass -- see "Out of Scope" in _docs/plan/_evaluator_plan.md.
+# Deliberately excludes GY/banishment for now - too complex
 _IN_SCOPE_ZONES = ("hand", "monster_zones", "spell_trap_zones", "field_spell_zones")
 
 
@@ -104,7 +104,7 @@ def evaluate(
 
   This is a pure lookup against hand-curated data (see `disruption_registry.py`).
   
-  No card-text parsing, no judgment about how threatening a finding is, no synthesis across findings. See `_docs/plan/_evaluator_plan.md` for the full scope of this pass.
+  No card-text parsing, no judgement about how threatening a finding is, no synthesis across findings. See `_docs/plan/_evaluator_plan.md` for the full scope of this pass.
 
   Args:
     board_state (BoardState): the board snapshot to evaluate

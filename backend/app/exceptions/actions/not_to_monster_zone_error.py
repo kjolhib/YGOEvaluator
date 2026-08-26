@@ -1,4 +1,4 @@
-from app.exceptions.CoreErrors import SoftError
+from backend.app.exceptions.core_errors import SoftError
 
 class NotToMonsterZoneError(SoftError):
   """

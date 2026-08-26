@@ -4,14 +4,14 @@ from app.core.BoardState import BoardState
 from app.core.Player import Player
 from app.static.Card import Card, CardInstance
 
-from app.type_defs.type_cards import CardType, Position
-from app.type_defs.type_zones import ZoneType
-from app.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
+from backend.app.static.type_defs.type_cards import CardType, Position
+from backend.app.static.type_defs.type_zones import ZoneType
+from backend.app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 
-from app.evaluator.DisruptionSource import DisruptionSource, lookup_disruption
+from backend.app.evaluator.disruption_source import DisruptionSource, lookup_disruption
 from app.static.disruption_registry import DISRUPTION_REGISTRY
-from app.evaluator.DisruptionFinding import DisruptionFinding
-from app.evaluator.BoardEvaluator import evaluate
+from backend.app.evaluator.disruption_finding import DisruptionFinding
+from backend.app.evaluator.board_evaluator import evaluate
 
 
 @pytest.fixture

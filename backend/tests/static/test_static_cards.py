@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from app.static.Card import Card, load_cards
-from app.type_defs.type_cards import (
+from backend.app.static.type_defs.type_cards import (
   CardType,
   EXTRA_DECK_MONSTER_TYPES,
   MAIN_DECK_MONSTER_TYPES,

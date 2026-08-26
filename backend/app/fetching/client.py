@@ -11,7 +11,7 @@ import urllib.parse
 import urllib.request
 from typing import Any
 
-from app.exceptions.fetching.FetchError import FetchError
+from backend.app.exceptions.fetching.fetch_error import FetchError
 
 BASE_URL = "https://db.ygoprodeck.com/api/v7/cardinfo.php"
 

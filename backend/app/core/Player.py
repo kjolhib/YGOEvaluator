@@ -3,13 +3,13 @@ from dataclasses import dataclass, field
 from app.core.Zones import ZoneType, FieldZone, PileZone
 from app.static.Card import CardInstance, CardType
 
-from app.type_defs.type_cards import Position, MAIN_DECK_MONSTER_TYPES
-from app.exceptions.actions.NotMainMonsterError import NotMainMonsterError
-from app.exceptions.actions.NotToMonsterZoneError import NotToMonsterZoneError
-from app.exceptions.actions.NotToSTZoneError import NotToSpellTrapZoneError
-from app.exceptions.actions.NotSTCardError import NotSpellTrapCardError
-from app.exceptions.actions.NotSettableCardError import NotSettableCardError
-from app.exceptions.actions.NotToFieldZoneError import NotToFieldZoneError
+from backend.app.static.type_defs.type_cards import Position, MAIN_DECK_MONSTER_TYPES
+from backend.app.exceptions.actions.not_main_monster_zone_error import NotMainMonsterZoneError
+from backend.app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
+from backend.app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
+from backend.app.exceptions.actions.not_st_card_error import NotSpellTrapCardError
+from backend.app.exceptions.actions.not_settable_card_error import NotSettableCardError
+from backend.app.exceptions.actions.not_to_field_zone_error import NotToFieldZoneError
 
 @dataclass
 class Player:
@@ -102,7 +102,7 @@ class Player:
       raise NotToMonsterZoneError("You can only normal summon into a main monster zone.")
     
     if card_type not in MAIN_DECK_MONSTER_TYPES:
-      raise NotMainMonsterError("You can only normal summon a main-deck monster.")
+      raise NotMainMonsterZoneError("You can only normal summon a main-deck monster.")
     
     self.normal_summon_used = True
     # Card is a monster, and you're trying to summon from the hand

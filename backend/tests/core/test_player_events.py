@@ -4,15 +4,15 @@ from app.static.Card import CardInstance, Card
 from app.core.Player import Player
 from app.core.Zones import FieldZone
 
-from app.type_defs.type_cards import CardType, Position
-from app.type_defs.type_zones import ZoneType
+from backend.app.static.type_defs.type_cards import CardType, Position
+from backend.app.static.type_defs.type_zones import ZoneType
 
-from app.exceptions.actions.NotToMonsterZoneError import NotToMonsterZoneError
-from app.exceptions.actions.NotMainMonsterError import NotMainMonsterError
-from app.exceptions.actions.NotToSTZoneError import NotToSpellTrapZoneError
-from app.exceptions.actions.NotSTCardError import NotSpellTrapCardError
-from app.exceptions.actions.NotSettableCardError import NotSettableCardError
-from app.exceptions.actions.NotToFieldZoneError import NotToFieldZoneError
+from backend.app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
+from backend.app.exceptions.actions.not_main_monster_zone_error import NotMainMonsterZoneError
+from backend.app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
+from backend.app.exceptions.actions.not_st_card_error import NotSpellTrapCardError
+from backend.app.exceptions.actions.not_settable_card_error import NotSettableCardError
+from backend.app.exceptions.actions.not_to_field_zone_error import NotToFieldZoneError
 
 @pytest.fixture
 def player():
@@ -48,7 +48,7 @@ def test_player_normal_summon__not_to_monst_zone(player: Player):
 def test_player_normal_summon__not_a_main_deck_monster(player: Player):
   card = Card(id=123456789, name="Dark Magik spell", card_type=CardType.SPELL)
   card_instance = CardInstance(card, Position.IN_HAND, ZoneType.HAND)
-  with pytest.raises(NotMainMonsterError):
+  with pytest.raises(NotMainMonsterZoneError):
     player.normal_summon(card_instance, player.monster_zones[0])
 
   assert len(player.all_monsters()) == 0

@@ -17,12 +17,12 @@ from dataclasses import dataclass, field
 from app.core.Player import Player
 from app.core.PlayerAction import PlayerAction, PlayerActions
 from app.core.Zones import FieldZone
-from app.type_defs.turn_phase import TurnPhase
+from backend.app.static.type_defs.turn_phase import TurnPhase
 
-from app.type_defs.type_zones import ZoneType
-from app.exceptions.actions.NotFromHandError import NotFromHandError
-from app.exceptions.actions.NotToMonsterZoneError import NotToMonsterZoneError
-from app.exceptions.actions.NotToSTZoneError import NotToSpellTrapZoneError
+from backend.app.static.type_defs.type_zones import ZoneType
+from backend.app.exceptions.actions.not_from_hand_error import NotFromHandError
+from backend.app.exceptions.actions.not_to_monster_zone_error import NotToMonsterZoneError
+from backend.app.exceptions.actions.not_to_spell_trap_zone_error import NotToSpellTrapZoneError
 
 @dataclass
 class BoardState:

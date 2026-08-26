@@ -3,8 +3,8 @@ from dataclasses import dataclass
 
 from app.core.Player import Player
 from app.static.Card import CardInstance
-from app.type_defs.type_player_action import PlayerActions
-from app.type_defs.type_zones import ZoneType
+from backend.app.static.type_defs.type_player_action import PlayerActions
+from backend.app.static.type_defs.type_zones import ZoneType
 
 @dataclass
 class PlayerAction:
