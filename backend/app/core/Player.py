@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from app.core.zones import ZoneType, FieldZone, PileZone
-from backend.app.static.type_defs.card import CardInstance, CardType
+from app.static.type_defs.card import CardInstance, CardType
 
 from app.static.type_defs.type_cards import Position, MAIN_DECK_MONSTER_TYPES
 from app.exceptions.actions.not_main_monster_zone_error import NotMainMonsterZoneError

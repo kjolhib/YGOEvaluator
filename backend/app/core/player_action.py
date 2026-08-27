@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app.core.player import Player
-from backend.app.static.type_defs.card import CardInstance
+from app.static.type_defs.card import CardInstance
 from app.static.type_defs.type_player_action import PlayerActions
 from app.static.type_defs.type_zones import ZoneType
 

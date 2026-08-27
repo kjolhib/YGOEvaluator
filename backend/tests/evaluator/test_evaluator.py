@@ -2,7 +2,7 @@ import pytest
 
 from app.core.board_state import BoardState
 from app.core.player import Player
-from backend.app.static.type_defs.card import Card, CardInstance
+from app.static.type_defs.card import Card, CardInstance
 
 from app.static.type_defs.type_cards import CardType, Position
 from app.static.type_defs.type_zones import ZoneType
