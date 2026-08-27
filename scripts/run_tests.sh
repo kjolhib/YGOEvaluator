@@ -2,5 +2,4 @@
 set -euo pipefail
 
 # Backend
-cd "$(dirname "$0")/../backend"
-pytest -q "$@"
+pytest -q backend/tests

@@ -13,4 +13,4 @@ jobs:
         with:
           python-version: "3.14"
       - run: pip install pytest
-      - run: ./scripts/run_tests.sh
+      - run: PYTHONPATH=backend ./scripts/run_tests.sh
