@@ -234,6 +234,35 @@ def test_evaluate__same_card_name_resolves_different_disruption_types_by_zone(bo
   assert all(f.instance_count == 1 for f in findings)  # SOFT scope, one copy each
 
 
+########### BOARDEVALUATOR: SHARED EXTRA MONSTER ZONE ###########
+
+def test_evaluate__emz_monster_is_scanned(board):
+  ci = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK)
+  board.extra_monster_zones[0].add(ci)
+
+  findings = evaluate(board)
+
+  assert len(findings) == 1
+  assert findings[0].card_name == "Baronne de Fleur"
+
+
+def test_evaluate__emz_finding_owner_matches_the_claimed_slot(board):
+  # extra_monster_zones[0] is fixed to board.player, [1] to board.opponent
+  # (see BoardState.__post_init__) -- a finding from either slot should be
+  # tagged to the right owner, same as any other zone.
+  ci_player = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK)
+  ci_opponent = _make_instance("Dark Paladin", CardType.FUSION_MONSTER, ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_DEF)
+  board.extra_monster_zones[0].add(ci_player)
+  board.extra_monster_zones[1].add(ci_opponent)
+
+  findings = evaluate(board)
+
+  assert len(findings) == 2
+  by_name = {f.card_name: f for f in findings}
+  assert by_name["Baronne de Fleur"].owner is board.player
+  assert by_name["Dark Paladin"].owner is board.opponent
+
+
 ########### BOARDEVALUATOR: CROSS-PLAYER TAGGING ###########
 
 def test_evaluate__findings_tagged_to_correct_owner(board):
