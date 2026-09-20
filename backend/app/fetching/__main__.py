@@ -4,6 +4,12 @@ Main driver for the fetcher module.
 The fetcher module fetches card data from YGOPRODeck.com based on a `card_pool.txt` file.
 
 For more information, see `docs/backend/fetcher/fetcher.md`.
+
+For usage, run the following from the `backend/` folder:
+```
+python -m app.fetching --format <name of format>
+```
+The format must be an existing folder in `backend/data/` that contains a `card_pool.txt` file. The fetcher will fetch cards within the text file.
 """
 
 from __future__ import annotations

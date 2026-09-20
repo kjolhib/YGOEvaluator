@@ -1,0 +1,42 @@
+# December 2024, Ryzeal format. Cards derived from https://formatlibrary.com/formats/ryzeal
+# Card pool
+#
+# One exact YGOPRODeck card name per line. Blank lines and lines starting
+# with '#' are ignored, so this file can be hand-curated with comments.
+
+# Near-Staple Hand Traps
+Ash Blossom & Joyous Spring
+Droll & Lock Bird
+Mulcharmy Fuwalos
+Mulcharmy Purulia
+Mulcharmy Meowls
+Nibiru, the Primal Being
+Effect Veiler
+Infinite Impermanence
+Called by the Grave
+Crossout Designator
+Dominus Impulse # maliss
+Pot of Prosperity
+Ultimate Slayer
+Ghost Ogre & Snow Rabbit
+Pot of Desires
+Triple Tactics Talent
+Book of Moon
+Artifact Lancea # maliss silver bullet
+Ghost Belle & Haunted Mansion
+Lightning Storm
+Harpie's Feather Duster
+Dimensional Barrier
+Solemn Judgment
+
+# Ryzeal
+Ryzeal Detonator
+Ryzeal Cross # busted ass card btw
+Ryzeal Duo Drive
+Mereologic Aggregator # ext send
+Evilswarm Exciton Knight # breaker & fiendsmith bridge
+Eclipse Twins
+
+# Maliss 
+Maliss <Q> White Binder
+

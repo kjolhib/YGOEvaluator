@@ -18,6 +18,6 @@ __pycache__
 plan/
 
 # data
-backend/data/*
-# except example_data folder, used for testing
-!backend/data/example_data/
+# backend/data/*
+# # except example_data folder, used for testing
+# !backend/data/example_data/

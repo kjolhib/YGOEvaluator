@@ -67,7 +67,7 @@ DISRUPTION_REGISTRY: list[DisruptionSource] = [
       },
     ),
   DisruptionSource(
-    card_name="Solemn Judgement",
+    card_name="Solemn Judgment",
     category=DisruptionCategory.OMNI_NEGATE,
     opt_scope=OncePerTurnScope.SOFT,
     disruption_by_zone={

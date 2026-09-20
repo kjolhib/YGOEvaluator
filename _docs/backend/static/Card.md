@@ -1,7 +1,7 @@
 # Card.py
 
 status: [done]
-last updated: [06-08-2026]
+last updated: [20-08-2026]
 
 
 **Path:** `backend/app/static/Card.py`
@@ -24,6 +24,7 @@ Define the static card data model and how it's loaded from `cards.json`, plus th
 - `load_cards(cards_json_path=None) -> list[Card]` -- reads a trimmed `cards.json` file and returns one `Card` per entry, in file order. Defaults to `backend/data/cards.json` if no path is given.
 - `index_cards_by_name(cards: list[Card]) -> dict[str, Card]` -- indexes a list of `Card`s by name, for lookups like "give me the `Card` for 'Ash Blossom & Joyous Spring'" when building a `CardInstance`.
 - `CardInstance` -- (not frozen) dataclass: `card` (`Card`), `current_position` (`Position`), `current_zone_type` (`ZoneType`), `counters` (`dict[str, int]`), `materials` (`list[CardInstance]`, for XYZ/Fusion/Synchro/Link material tracking), `is_negated` (`bool`).
+- `FormatDesc` -- Currently in planning: a static field that holds contextual information based on the format selected. Likely requires a `dict[Format, reference]`, which maps the formats that have their own unique format descriptions.
 
 ## How It Fits In
 `Card` depends on `CardType`/`map_card_type`/`EXTRA_DECK_MONSTER_TYPES` (`app.type_defs.type_cards`); `CardInstance` additionally depends on `Position` (same module) and `ZoneType` (`app.type_defs.type_zones`). `Card.from_raw`/`load_cards` are the consumers of `app.fetching`'s trimmed output -- this is the bridge between fetched JSON and usable Python objects. `CardInstance` is what `Player`'s zones actually hold, what `BoardEvaluator` scans (via `card_instance.card.name`, `.current_zone_type`, `.current_position`), and what every disruption registry entry (`DisruptionSource.disruption_by_zone`) is checked against -- see `_docs/backend/evaluator/DisruptionSource.md`.

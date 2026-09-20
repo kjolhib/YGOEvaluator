@@ -71,7 +71,7 @@ def test_registry_opt_correctness():
 def test_registry_pos_state_correctness():
   dr = [
     DisruptionSource(
-      card_name="Solemn Judgement",
+      card_name="Solemn Judgment",
       category=DisruptionCategory.OMNI_NEGATE,
       opt_scope=OncePerTurnScope.SOFT,
       disruption_by_zone={
@@ -177,21 +177,21 @@ def test_evaluate__zone_outside_disruption_by_zone_produces_no_finding(board):
 
 ########### BOARDEVALUATOR: ZONE ABSENCE (a real omni negate, wrong zone entirely) ###########
 
-def test_evaluate__solemn_judgement_in_hand_produces_no_finding(board):
-  # Solemn Judgement is a real omni negate, but Trap Cards can't be activated
+def test_evaluate__solemn_Judgment_in_hand_produces_no_finding(board):
+  # Solemn Judgment is a real omni negate, but Trap Cards can't be activated
   # straight from hand -- they must be Set first. Its registry entry has no
   # HAND key at all, so sitting in hand it isn't a disruption of any kind,
   # not even POTENTIAL_DISRUPTION.
-  ci = _make_instance("Solemn Judgement", CardType.TRAP, ZoneType.HAND, Position.IN_HAND)
+  ci = _make_instance("Solemn Judgment", CardType.TRAP, ZoneType.HAND, Position.IN_HAND)
   board.player.hand.cards.append(ci)
 
   findings = evaluate(board)
 
   assert findings == []
 
-def test_evaluate__solemn_judgement_set_produces_a_finding(board):
+def test_evaluate__solemn_Judgment_set_produces_a_finding(board):
   # the same card, set into the spell/trap zone, IS live
-  ci = _make_instance("Solemn Judgement", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
+  ci = _make_instance("Solemn Judgment", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
   board.player.spell_trap_zones[0].add(ci)
 
   findings = evaluate(board)
