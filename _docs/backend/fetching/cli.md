@@ -1,7 +1,7 @@
 # __main__.py
 
-status: [done]
-last updated: [29-07-2026]
+[status]: [done]
+[last updated]: [29-07-2026]
 
 
 **Path:** `backend/app/fetching/__main__.py`

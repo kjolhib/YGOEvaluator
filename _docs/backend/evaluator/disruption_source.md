@@ -1,7 +1,7 @@
 # disruption_source.py
 
-status: [done]
-last updated: [26-08-2026]
+[status]: [done]
+[last updated]: [26-08-2026]
 
 
 **Path:** `backend/app/evaluator/disruption_source.py`

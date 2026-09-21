@@ -1,8 +1,8 @@
 # disruption_registry.py
 
-data-status: [in-progress]
-implementation-status: [done]
-last updated: [26-08-2026]
+[data-status]: [in-progress]
+[implementation-status]: [done]
+[last updated]: [21-09-2026]
 
 
 **Path:** `backend/app/static/disruption_registry.py`
@@ -23,7 +23,7 @@ Each entry in the dictionary will include information pertaining to:
 - `DisruptionSource`: a class that contains information about a specific disruption source. It includes:
   - `card_name`: name of the card that this disruption is relevant to
   - `category`: usually community-crafted categories, such as "hand trap"
-  - `opt-scope`: type of once per turn this disruption is, can be either `SOFT` or `HARD`
+  - `opt-scope`: type of once per turn this disruption is, can be `SOFT`, `HARD` or `MIXED`
   - `disruption-by-zone`: the behaviour of this disruption in specific zones. Here to tell the evaluator whether or not a disruption is considered `ACTIVE` or not.
 ## Main Components
 - `DISRUPTION_REGISTRY`: this is a global variable that contains all card disruptions.
