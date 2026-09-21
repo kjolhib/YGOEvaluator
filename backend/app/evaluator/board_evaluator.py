@@ -23,11 +23,7 @@ def _collect_instances(player: Player, owned_emz_zone: Optional[Zone] = None) ->
     player: the player to collect all card instances from.
     owned_emz_zone: the shared `board_state.extra_monster_zones` slot
       attributed to this player, if any (see `evaluate`'s docstring for
-      why attribution is a fixed convention rather than real ownership
-      tracking). Folded into the same flat list as the player's other
-      zones -- not scanned separately -- so a hard-OPT card split between
-      e.g. a `monster_zones` slot and this player's EMZ slot still
-      collapses into one finding, same as any other pair of zones.
+      why attribution is fixed). 
 
   Returns:
     list[CardInstance]: a list of all card instances, flattened.
@@ -50,8 +46,7 @@ def _findings_for_player(
   owned_emz_zone: Optional[Zone] = None,
 ) -> list[DisruptionFinding]:
   """
-  Scans one player's in-scope zones (including their attributed EMZ slot,
-  if any) and produces their `DisruptionFinding`s.
+  Scans one player's in-scope zones and produces their `DisruptionFinding`s.
 
   Args:
     player: the evaluation results of the player.
@@ -63,11 +58,9 @@ def _findings_for_player(
   """
   # (card_name, resolved DisruptionType) -> (DisruptionSource, matched CardInstances)
   #
-  # Keyed by (name, type), not just name: the same card name can resolve to
-  # a different DisruptionType depending on which (zone, position) a given
-  # copy is in (see DisruptionSource.disruption_by_zone), so two copies of
-  # the same card in different states must not be merged into one
-  # ambiguous group.
+  # Keyed by (name, type), not just name: the same card name can resolve to a different DisruptionType depending on which (zone, position) a given copy is in (see DisruptionSource.disruption_by_zone). 
+  # 
+  # So, two copies of the same card in different states must not be merged into one ambiguous group.
   matches: dict[tuple[str, DisruptionType], tuple[DisruptionSource, list[CardInstance]]] = {}
 
   for card_instance in _collect_instances(player, owned_emz_zone):
@@ -84,7 +77,7 @@ def _findings_for_player(
   for (card_name, disruption_type), (source, group) in matches.items():
     if source.opt_scope is OncePerTurnScope.HARD:
       # However many copies, a hard OPT restriction collapses them to one
-      # usable effect this turn -- one finding, count carried for context.
+      # usable effect this turn
       findings.append(DisruptionFinding(
         owner=player,
         card_name=card_name,
@@ -93,8 +86,8 @@ def _findings_for_player(
         opt_scope=source.opt_scope,
         instance_count=len(group),
       ))
-    else:
-      # SOFT: each copy is independently live -- one finding per instance.
+    elif source.opt_scope is OncePerTurnScope.SOFT:
+      # SOFT: each copy is independently live: one finding per instance.
       for _ in group:
         findings.append(DisruptionFinding(
           owner=player,
@@ -104,6 +97,18 @@ def _findings_for_player(
           opt_scope=source.opt_scope,
           instance_count=1,
         ))
+    else:
+      # Mixed, some cards may have a mix of hard opt effects with soft opt
+      # Currently just derived as "mixed". May be extended in the future
+      findings.append(DisruptionFinding(
+        owner=player,
+        card_name=card_name,
+        category=source.category,
+        disruption_type=disruption_type,
+        opt_scope=source.opt_scope,
+        instance_count=len(group) # a single finding for a mixed type, with instance count being the number of different independent cards on the field.
+        # Since currently the evaluator cannot determine which effect is which scope, it's best to show that this disruption contains hard opt (hence only 1 finding, not appending a finding for each group), but also include the number of independent cards (hence this can give an indication of how many possible soft opt effects there are)
+      ))
 
   return findings
 
@@ -114,43 +119,34 @@ def evaluate(
   registry: list[DisruptionSource] = DISRUPTION_REGISTRY,
 ) -> list[DisruptionFinding]:
   """
-  Scans a `BoardState` snapshot and returns every disruption found on either
-  player's side (including the shared Extra Monster Zones), cross-referenced
-  against `registry`.
+  Scans a given `BoardState` and returns every disruption found on either
+  player's side. Disruptiosn are cross-referenced against `registry`.
 
   This is a pure lookup against hand-curated data (see `disruption_registry.py`).
 
-  EMZ ownership: `board_state.extra_monster_zones` isn't a `Player`
-  attribute, so it has no inherent owner to key a `DisruptionFinding` off
-  of. Real EXTRA_MONSTER_ZONE rules let either player claim either
-  physical slot at runtime (first monster placed into any EMZ claims it;
-  the opponent is then restricted to whichever remains) -- that contested
-  behaviour is deliberately NOT modelled. Instead this function attributes
-  `extra_monster_zones[0]` to `board_state.player` and `[1]` to
+  EMZ ownership: `board_state.extra_monster_zones` isn't a `Player` attribute, so it has no inherent owner to key a `DisruptionFinding` off of. 
+  Real EXTRA_MONSTER_ZONE rules let either player claim either physical slot at runtime (first monster placed into any EMZ claims it; the opponent is then restricted to whichever remains). 
+  
+  Instead this function attributes `extra_monster_zones[0]` to `board_state.player` and `[1]` to
   `board_state.opponent` as a fixed convention, purely for evaluation
-  purposes. This has ~no practical impact today (which physical EMZ slot a
-  monster sits in rarely matters), but revisit if/when the frontend needs
+  purposes. 
+  
+  This has ~no real practical impact today (which physical EMZ slot a
+  monster sits in rarely matters), but may need revisions if/when the frontend needs
   the real contested-slot behaviour. Deliberately kept local to this
-  function rather than tracked as state anywhere else (e.g. a generic
-  `owner` field on `Zone`) -- the instance layer has no other reason to
-  know about ownership, and bolting it on there would couple `Zone` to
-  `Player` for the sake of this one case.
+  function rather than tracked as state anywhere else. An extensiond would be adding an "owner" field to Zone.
 
   Args:
     board_state (BoardState): the board snapshot to evaluate
-    history (Any): reserved, unused. Per `_docs/workflow.md`'s
-      extensibility requirement, this seam exists now so a future
+    history (Any): reserved, unused. This exists now so a future
       `History`/`GameLog` object can be introduced later without reworking
       this function's signature or call sites. Passing anything here has
-      no effect yet.
+      **no** effect yet.
     registry (list[DisruptionSource]): the disruption registry to
-      check against. Defaults to `DISRUPTION_REGISTRY`; overridable for
-      tests or a future per-format registry.
+      check against. Defaults to `DISRUPTION_REGISTRY`. overridable.
 
   Returns:
-    list[DisruptionFinding]: every finding across both players, in
-    (`board_state.player`'s findings) + (`board_state.opponent`'s findings)
-    order. Exact ordering isn't load-bearing for this pass.
+    list[DisruptionFinding]: every finding across both players, in (`board_state.player`'s findings) + (`board_state.opponent`'s findings) order.
   """
   emz = board_state.extra_monster_zones
   findings: list[DisruptionFinding] = []
