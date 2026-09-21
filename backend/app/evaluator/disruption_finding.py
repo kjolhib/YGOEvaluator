@@ -19,7 +19,7 @@ class DisruptionFinding:
   """
   owner: Player
   card_name: str
-  category: DisruptionCategory
+  category: list[DisruptionCategory]
   disruption_type: DisruptionType
   opt_scope: OncePerTurnScope
   instance_count: int

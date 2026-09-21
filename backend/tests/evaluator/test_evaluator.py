@@ -51,7 +51,8 @@ def _find_disruption_source(name: str) -> DisruptionSource:
 def test_registry_entries_construct_correctly():
   for source in DISRUPTION_REGISTRY:
     assert isinstance(source, DisruptionSource)
-    assert isinstance(source.category, DisruptionCategory)
+    assert isinstance(source.category, list), "Disruption categories must be a list."
+    assert all(isinstance(item, DisruptionCategory) for item in source.category), "An item in the disruption category is not of type DisruptionCategory."
     assert isinstance(source.opt_scope, OncePerTurnScope)
     assert isinstance(source.disruption_by_zone, dict)
     assert len(source.disruption_by_zone) > 0
@@ -73,7 +74,7 @@ def test_registry_pos_state_correctness():
   dr = [
     DisruptionSource(
       card_name="Solemn Judgment",
-      category=DisruptionCategory.OMNI_NEGATE,
+      category=[DisruptionCategory.OMNI_NEGATE],
       opt_scope=OncePerTurnScope.SOFT,
       disruption_by_zone={
         (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
@@ -167,7 +168,7 @@ def test_evaluate__mixed_opt(board):
   custom_registry = [
       DisruptionSource(
         card_name="Combo Piece",
-        category=DisruptionCategory.EXTENDER,
+        category=[DisruptionCategory.EXTENDER],
         opt_scope=OncePerTurnScope.MIXED,
         disruption_by_zone={
           (ZoneType.HAND, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
@@ -228,7 +229,7 @@ def test_evaluate__same_card_name_resolves_different_disruption_types_by_zone(bo
   custom_registry = [
     DisruptionSource(
       card_name="Combo Piece",
-      category=DisruptionCategory.EXTENDER,
+      category=[DisruptionCategory.EXTENDER],
       opt_scope=OncePerTurnScope.SOFT,
       disruption_by_zone={
         (ZoneType.HAND, Position.IN_HAND): DisruptionType.POTENTIAL_DISRUPTION,

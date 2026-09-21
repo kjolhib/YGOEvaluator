@@ -13,7 +13,7 @@ from app.static.type_defs.type_cards import Position
 DISRUPTION_REGISTRY: list[DisruptionSource] = [
   DisruptionSource(
     card_name="Ash Blossom & Joyous Spring",
-    category=DisruptionCategory.HANDTRAP,
+    category=[DisruptionCategory.HANDTRAP],
     opt_scope=OncePerTurnScope.HARD,
     disruption_by_zone={
       (ZoneType.HAND, Position.IN_HAND): DisruptionType.ACTIVE_DISRUPTION,
@@ -21,7 +21,7 @@ DISRUPTION_REGISTRY: list[DisruptionSource] = [
   ),
   DisruptionSource(
     card_name="Baronne de Fleur",
-    category=DisruptionCategory.OMNI_NEGATE,
+    category=[DisruptionCategory.OMNI_NEGATE, DisruptionCategory.TARGETED_REMOVAL],
     opt_scope=OncePerTurnScope.HARD,
     disruption_by_zone={
       (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
@@ -32,7 +32,7 @@ DISRUPTION_REGISTRY: list[DisruptionSource] = [
   ),
   DisruptionSource(
     card_name="Infernity Barrier",
-    category=DisruptionCategory.OMNI_NEGATE,
+    category=[DisruptionCategory.OMNI_NEGATE],
     opt_scope=OncePerTurnScope.SOFT,
     disruption_by_zone={
       (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
@@ -40,7 +40,7 @@ DISRUPTION_REGISTRY: list[DisruptionSource] = [
   ),
   DisruptionSource(
       card_name="Dark Paladin",
-      category=DisruptionCategory.SPELL_NEGATE,
+      category=[DisruptionCategory.SPELL_NEGATE],
       opt_scope=OncePerTurnScope.SOFT,
       disruption_by_zone={
         # Quick Effect isn't battle-position-dependent, so both ATK/DEF count
@@ -52,7 +52,7 @@ DISRUPTION_REGISTRY: list[DisruptionSource] = [
     ),
   DisruptionSource(
     card_name="Mirror Force",
-    category=DisruptionCategory.BOARD_BREAKER,
+    category=[DisruptionCategory.BOARD_BREAKER],
     opt_scope=OncePerTurnScope.SOFT,
     disruption_by_zone={
       (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
@@ -60,15 +60,16 @@ DISRUPTION_REGISTRY: list[DisruptionSource] = [
   ),
   DisruptionSource(
       card_name="Mitsurugi Great Purification",
-      category=DisruptionCategory.OMNI_NEGATE,
+      category=[DisruptionCategory.OMNI_NEGATE],
       opt_scope=OncePerTurnScope.HARD,
       disruption_by_zone={
         (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
+        (ZoneType.GRAVEYARD, Position.IN_GY): DisruptionType.POTENTIAL_DISRUPTION
       },
     ),
   DisruptionSource(
     card_name="Solemn Judgment",
-    category=DisruptionCategory.OMNI_NEGATE,
+    category=[DisruptionCategory.OMNI_NEGATE],
     opt_scope=OncePerTurnScope.SOFT,
     disruption_by_zone={
       (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,

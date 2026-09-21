@@ -18,7 +18,7 @@ class DisruptionSource:
   Entries are hand-authored in `disruption_registry.py`. The same spirit/scale as `card_pool.txt`: a starter list meant to be hand-extended over time, not exhaustive.
   """
   card_name: str
-  category: DisruptionCategory
+  category: list[DisruptionCategory]
   opt_scope: OncePerTurnScope
 
   disruption_by_zone: dict[tuple[ZoneType, Position], DisruptionType]
