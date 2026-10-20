@@ -2,10 +2,10 @@
 
 [data-status]: [in-progress]
 [implementation-status]: [done]
-[last updated]: [21-09-2026]
+[last updated]: [20-10-2026]
 
 
-**Path:** `backend/app/static/disruption_registry.py`
+**Path:** `backend/app/static/registry/`
 
 ## Context
 Disruptions are complicated in yugioh, even ignoring layered disruptions. Even flat omni negates or may have many conditions attached to them.
@@ -26,7 +26,8 @@ Each entry in the dictionary will include information pertaining to:
   - `opt-scope`: type of once per turn this disruption is, can be `SOFT`, `HARD` or `MIXED`
   - `disruption-by-zone`: the behaviour of this disruption in specific zones. Here to tell the evaluator whether or not a disruption is considered `ACTIVE` or not.
 ## Main Components
-- `DISRUPTION_REGISTRY`: this is a global variable that contains all card disruptions.
+- `registry/`: folder pointing to all the python files that contain disruption entries.
+- `registry/<classification>.py`: each python file contains entries on disruptions. Classified by their archetype or some community theme, like hand traps.
 
 ## Notes
 - The dictionary is **keyed by name**, not ID. This is primarily because Yugioh card names cannot be the same by the design of the game, and so it's just easier to key it by name. This may be subject to change.
