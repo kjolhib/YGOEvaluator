@@ -6,7 +6,7 @@ from app.core.player import Player
 from app.core.zones import Zone
 from app.static.type_defs.card import CardInstance
 from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
-from app.static.disruption_registry import DISRUPTION_REGISTRY
+from app.static.registry import GLOBAL_REGISTRY as DISRUPTION_REGISTRY
 from app.evaluator.disruption_finding import DisruptionFinding
 from app.static.type_defs.type_disruption import OncePerTurnScope, DisruptionType
 
@@ -76,8 +76,7 @@ def _findings_for_player(
   findings: list[DisruptionFinding] = []
   for (card_name, disruption_type), (source, group) in matches.items():
     if source.opt_scope is OncePerTurnScope.HARD:
-      # However many copies, a hard OPT restriction collapses them to one
-      # usable effect this turn
+      # However many copies, a hard OPT restriction collapses them to one usable effect this turn
       findings.append(DisruptionFinding(
         owner=player,
         card_name=card_name,

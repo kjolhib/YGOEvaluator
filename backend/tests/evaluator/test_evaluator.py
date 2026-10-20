@@ -9,7 +9,7 @@ from app.static.type_defs.type_zones import ZoneType
 from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 
 from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
-from app.static.disruption_registry import DISRUPTION_REGISTRY
+from app.static.registry import GLOBAL_REGISTRY as DISRUPTION_REGISTRY
 from app.evaluator.disruption_finding import DisruptionFinding
 from app.evaluator.board_evaluator import evaluate
 
