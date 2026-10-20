@@ -31,3 +31,6 @@ Each entry in the dictionary will include information pertaining to:
 
 ## Notes
 - The dictionary is **keyed by name**, not ID. This is primarily because Yugioh card names cannot be the same by the design of the game, and so it's just easier to key it by name. This may be subject to change.
+
+## Limitations
+- Currently, there is nothing to denote "you can only activate 1 of the following effects per turn", or of that miscellaneous type. I do not intend to add this in coding, but do intend to add this in descriptions of cards. 
