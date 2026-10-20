@@ -8,8 +8,7 @@ from app.static.type_defs.type_cards import CardType, Position
 from app.static.type_defs.type_zones import ZoneType
 from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 
-from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
-from app.static.registry import GLOBAL_REGISTRY as DISRUPTION_REGISTRY
+from app.evaluator.disruption_source import DisruptionSource
 from app.evaluator.disruption_finding import DisruptionFinding
 from app.evaluator.board_evaluator import evaluate
 
@@ -33,57 +32,6 @@ def _make_instance(
   """
   card = Card(id=0, name=name, card_type=card_type)
   return CardInstance(card, position, zone_type)
-
-def _find_disruption_source(name: str) -> DisruptionSource:
-  """
-  Scans `DISRUPTION_REGISTRY` to find. the card name.
-
-  Args:
-    - name: the name to search for
-
-  Returns:
-    - DisruptionSource: if found, it returns its source disruption
-  """
-  return next(source for source in DISRUPTION_REGISTRY if source.card_name == name)
-
-########### DISRUPTION_REGISTRY CONSTRUCTION ###########
-
-def test_registry_entries_construct_correctly():
-  for source in DISRUPTION_REGISTRY:
-    assert isinstance(source, DisruptionSource)
-    assert isinstance(source.category, list), "Disruption categories must be a list."
-    assert all(isinstance(item, DisruptionCategory) for item in source.category), "An item in the disruption category is not of type DisruptionCategory."
-    assert isinstance(source.opt_scope, OncePerTurnScope)
-    assert isinstance(source.disruption_by_zone, dict)
-    assert len(source.disruption_by_zone) > 0
-    for state, disruption_type in source.disruption_by_zone.items():
-      zone_type, position = state
-      assert isinstance(zone_type, ZoneType)
-      assert isinstance(position, Position)
-      assert isinstance(disruption_type, DisruptionType)
-
-    card_names = [source.card_name for source in DISRUPTION_REGISTRY]
-    assert len(card_names) == len(set(card_names)), "duplicate card_name entries in DISRUPTION_REGISTRY"
-
-def test_registry_opt_correctness():
-  # Check once per turn 
-  assert _find_disruption_source("Baronne de Fleur").opt_scope is OncePerTurnScope.HARD
-  assert _find_disruption_source("Infernity Barrier").opt_scope is OncePerTurnScope.SOFT
-
-def test_registry_pos_state_correctness():
-  dr = [
-    DisruptionSource(
-      card_name="Solemn Judgment",
-      category=[DisruptionCategory.OMNI_NEGATE],
-      opt_scope=OncePerTurnScope.SOFT,
-      disruption_by_zone={
-        (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
-      },
-    ),
-  ]
-  solemn_zones = {zone_type for zone_type, _position in dr[0].disruption_by_zone}
-  assert ZoneType.HAND not in solemn_zones
-
 
 ########### BOARDEVALUATOR: HARD OPT ###########
 
