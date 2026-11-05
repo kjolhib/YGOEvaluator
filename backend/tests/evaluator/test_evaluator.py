@@ -8,7 +8,7 @@ from app.static.type_defs.type_cards import CardType, Position
 from app.static.type_defs.type_zones import ZoneType
 from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 
-from app.evaluator.disruption_source import DisruptionSource
+from app.evaluator.disruption_source import DisruptionEffect, DisruptionSource
 from app.evaluator.disruption_finding import DisruptionFinding
 from app.evaluator.board_evaluator import evaluate
 
@@ -37,8 +37,8 @@ def _make_instance(
 
 def test_evaluate__monster_hard_opt_collapses_multiple_copies(board):
   # 2 copies of a monster hard-opt card on the same board should collapse to 1 finding
-  ci_1 = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.MONSTER)
-  ci_2 = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.MONSTER)
+  ci_1 = _make_instance("Ash Blossom & Joyous Spring", CardType.EFFECT_MONSTER, ZoneType.HAND, Position.IN_HAND)
+  ci_2 = _make_instance("Ash Blossom & Joyous Spring", CardType.EFFECT_MONSTER, ZoneType.HAND, Position.IN_HAND)
   board.player.monster_zones[0].add(ci_1)
   board.player.monster_zones[1].add(ci_2)
 
@@ -46,7 +46,7 @@ def test_evaluate__monster_hard_opt_collapses_multiple_copies(board):
 
   assert len(findings) == 1
   finding = findings[0]
-  assert finding.card_name == "Baronne de Fleur"
+  assert finding.card_name == "Ash Blossom & Joyous Spring"
   assert finding.opt_scope is OncePerTurnScope.HARD
   assert finding.instance_count == 2
   assert finding.owner is board.player
@@ -110,29 +110,52 @@ def test_evaluate__monster_soft_opt_emits_one_finding_per_copy(board):
   assert all(f.opt_scope is OncePerTurnScope.SOFT for f in findings)
   assert all(f.instance_count == 1 for f in findings)
 
-########### BOARDEVALUATOR: MIXED OPT ###########
-def test_evaluate__mixed_opt(board):
-  # a card has multiple effects with different opt scopes while face-up atk
-  custom_registry = [
-      DisruptionSource(
-        card_name="Combo Piece",
-        category=[DisruptionCategory.EXTENDER],
-        opt_scope=OncePerTurnScope.MIXED,
-        disruption_by_zone={
-          (ZoneType.HAND, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-          (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-        },
-      ),
-    ]
-  ci_1 = _make_instance("Combo Piece", CardType.EFFECT_MONSTER, ZoneType.MONSTER, Position.FACE_UP_ATK)
-  ci_2 = _make_instance("Combo Piece", CardType.EFFECT_MONSTER, ZoneType.MONSTER, Position.FACE_UP_ATK)
+########### BOARDEVALUATOR: MULTIPLE EFFECTS ###########
+def test_evaluate__mult_effects(board):
+  # baronne has targeted destruction & omni
+  ci_1 = _make_instance("Baronne de Fleur", CardType.EFFECT_MONSTER, ZoneType.MONSTER, Position.FACE_UP_ATK)
+  ci_2 = _make_instance("Baronne de Fleur", CardType.EFFECT_MONSTER, ZoneType.MONSTER, Position.FACE_UP_ATK)
   board.player.monster_zones[0].add(ci_1)
   board.player.monster_zones[1].add(ci_2)
-  findings = evaluate(board, registry=custom_registry)
+  findings = evaluate(board)
 
-  assert(len(findings) == 1) # mixed scopes should produce a single "mixed" finding. Tells us there's at most 1 hard opt finding
-  assert(findings[0].opt_scope is OncePerTurnScope.MIXED) # this likely will require human curating on the card description, or just let the user read and understand themselves
+  assert(len(findings) == 2) # mixed scopes should produce a single "mixed" finding. Tells us there's at most 1 hard opt finding
+  assert(findings[0].opt_scope is OncePerTurnScope.HARD)
+  assert(findings[1].opt_scope is OncePerTurnScope.HARD)
   assert(findings[0].instance_count == 2) # 2 indepdent cards, overall telling us that there could be 2 soft opt effects
+
+
+def test_evaluate__mixed_opt(board):
+  custom_registry = [DisruptionSource(
+    card_name="Mixed Card",
+    effects=[
+      DisruptionEffect(
+        label="Spell Negation",
+        categories=[DisruptionCategory.SPELL_NEGATE],
+        opt_scope=OncePerTurnScope.SOFT,
+        disruption_by_zone={
+          (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+        }
+      ),
+      DisruptionEffect(
+        label="Trap Negation",
+        categories=[DisruptionCategory.TRAP_NEGATE],
+        opt_scope=OncePerTurnScope.HARD,
+        disruption_by_zone={
+          (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+        }
+      ),
+    ]
+  )]
+  ci = _make_instance("Mixed Card", CardType.EFFECT_MONSTER, ZoneType.MONSTER, Position.FACE_UP_ATK)
+  board.player.monster_zones[0].add(ci)
+  findings = evaluate(board, registry=custom_registry)
+  assert(len(findings)== 2) # one soft, one  hard
+  board.player.monster_zones[1].add(ci)
+  findings = evaluate(board, registry=custom_registry)
+  assert(len(findings)== 3) # 2 soft, 1 hard
 
 
 ########### BOARDEVALUATOR: ZONE FILTERING ###########
@@ -177,12 +200,17 @@ def test_evaluate__same_card_name_resolves_different_disruption_types_by_zone(bo
   custom_registry = [
     DisruptionSource(
       card_name="Combo Piece",
-      category=[DisruptionCategory.EXTENDER],
-      opt_scope=OncePerTurnScope.SOFT,
-      disruption_by_zone={
-        (ZoneType.HAND, Position.IN_HAND): DisruptionType.POTENTIAL_DISRUPTION,
-        (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-      },
+      effects=[
+        DisruptionEffect(
+          label="Some combo piece",
+          categories=[DisruptionCategory.EXTENDER],
+          opt_scope=OncePerTurnScope.SOFT,
+          disruption_by_zone={
+            (ZoneType.HAND, Position.IN_HAND): DisruptionType.POTENTIAL_DISRUPTION,
+            (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+          },
+        )
+      ]
     ),
   ]
 
@@ -209,7 +237,7 @@ def test_evaluate__emz_monster_is_scanned(board):
 
   findings = evaluate(board)
 
-  assert len(findings) == 1
+  assert len(findings) == 2
   assert findings[0].card_name == "Baronne de Fleur"
 
 
@@ -224,7 +252,7 @@ def test_evaluate__emz_finding_owner_matches_the_claimed_slot(board):
 
   findings = evaluate(board)
 
-  assert len(findings) == 2
+  assert len(findings) == 3
   by_name = {f.card_name: f for f in findings}
   assert by_name["Baronne de Fleur"].owner is board.player
   assert by_name["Dark Paladin"].owner is board.opponent
@@ -234,7 +262,7 @@ def test_evaluate__emz_finding_owner_matches_the_claimed_slot(board):
 
 def test_evaluate__findings_tagged_to_correct_owner(board):
   # a set Mirror Force belongs to the opponent, not the turn player
-  ci = _make_instance("Mirror Force", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
+  ci = _make_instance("Solemn Judgment", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
   board.opponent.spell_trap_zones[0].add(ci)
 
   findings = evaluate(board)
