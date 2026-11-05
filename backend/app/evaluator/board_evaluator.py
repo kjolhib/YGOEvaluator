@@ -73,7 +73,8 @@ def _findings_for_player(
   owned_emz_zone: Optional[Zone] = None,
 ) -> list[DisruptionFinding]:
   """
-  Scans one player's in-scope zones and produces their `DisruptionFinding`s.
+  Scans one player's in-scope zones (including their attributed EMZ slot,
+  if any) and produces their `DisruptionFinding`s.
 
   Args:
     player: the evaluation results of the player.
