@@ -40,6 +40,7 @@ class DisruptionSource:
   def __post_init__(self) -> None:
     if not self.effects:
       raise ValueError(f"DisruptionSource {self.card_name} must have at least one effect for it to be classified as a disruption.")
+    # TODO: check for duplicate effects
 
 def lookup_disruption(
   card_instance: CardInstance,
