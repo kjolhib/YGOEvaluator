@@ -15,11 +15,11 @@ class DisruptionType(Enum):
 class OncePerTurnScope(Enum):
   """
   Enum classifying whether a card's once-per-turn restriction is by name
-  (`HARD`) or by copy (`SOFT`).
+  `HARD`, `SOFT`.
 
-  E.g. Baronne de Fleur is `HARD` -- however many copies are visible, they
+  E.g. Baronne de Fleur is `HARD` opt. however many copies are visible, they
   collapse to at most one usable effect this turn. Infernity Barrier is
-  `SOFT` -- each copy is independently live.
+  `SOFT`. each copy is independently live.
   """
   HARD = auto()
   SOFT = auto()
@@ -40,8 +40,9 @@ class DisruptionCategory(Enum):
   TRAP_NEGATE = auto()
   SPELL_TRAP_NEGATE = auto()
   MONSTER_NEGATE = auto()
-  TARGETED_REMOVAL = auto()
+  TARGETED_DESTRUCTION = auto()
   HANDTRAP = auto()
   FLOODGATE = auto()
   BOARD_BREAKER = auto()
   EXTENDER = auto()
+  POTENTIAL_DISRUPTION = auto()

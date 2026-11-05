@@ -27,7 +27,7 @@ def test_trim_card_monster():
   trimmed = trim_card(raw)
 
   assert trimmed["id"] == 14558127
-  assert trimmed["name"] == "Ash Blossom & Joyous Spring"
+  assert trimmed["name"] == "Test Monster"
   assert trimmed["type"] == "Effect Monster"  # kept raw, not mapped to CardType (deferred to static layer)
   assert trimmed["race"] == "Zombie"
   assert trimmed["attribute"] == "FIRE"
@@ -92,7 +92,7 @@ def test_trim_cards_trims_each_entry():
   trimmed = trim_cards(raws)
 
   assert len(trimmed) == 2
-  assert trimmed[0]["name"] == "Ash Blossom & Joyous Spring"
+  assert trimmed[0]["name"] == "Test Monster"
   assert trimmed[1]["name"] == "Pot of Greed"
   assert "frameType" not in trimmed[0]
   assert "frameType" not in trimmed[1]

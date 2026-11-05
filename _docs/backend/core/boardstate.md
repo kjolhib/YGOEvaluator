@@ -1,7 +1,7 @@
 # board_state.py
 
-status: [done]
-last updated: [26-08-2026]
+[status]: [done]
+[last updated]: [26-08-2026]
 
 
 **Path:** `backend/app/core/board_state.py`

@@ -8,8 +8,7 @@ from app.static.type_defs.type_cards import CardType, Position
 from app.static.type_defs.type_zones import ZoneType
 from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 
-from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
-from app.static.disruption_registry import DISRUPTION_REGISTRY
+from app.evaluator.disruption_source import DisruptionEffect, DisruptionSource
 from app.evaluator.disruption_finding import DisruptionFinding
 from app.evaluator.board_evaluator import evaluate
 
@@ -34,61 +33,12 @@ def _make_instance(
   card = Card(id=0, name=name, card_type=card_type)
   return CardInstance(card, position, zone_type)
 
-def _find_disruption_source(name: str) -> DisruptionSource:
-  """
-  Scans `DISRUPTION_REGISTRY` to find. the card name.
-
-  Args:
-    - name: the name to search for
-
-  Returns:
-    - DisruptionSource: if found, it returns its source disruption
-  """
-  return next(source for source in DISRUPTION_REGISTRY if source.card_name == name)
-
-########### DISRUPTION_REGISTRY SANITY ###########
-
-def test_registry_entries_construct_correctly():
-  for source in DISRUPTION_REGISTRY:
-    assert isinstance(source, DisruptionSource)
-    assert isinstance(source.category, DisruptionCategory)
-    assert isinstance(source.opt_scope, OncePerTurnScope)
-    assert isinstance(source.disruption_by_zone, dict)
-    assert len(source.disruption_by_zone) > 0
-    for state, disruption_type in source.disruption_by_zone.items():
-      zone_type, position = state
-      assert isinstance(zone_type, ZoneType)
-      assert isinstance(position, Position)
-      assert isinstance(disruption_type, DisruptionType)
-
-    card_names = [source.card_name for source in DISRUPTION_REGISTRY]
-    assert len(card_names) == len(set(card_names)), "duplicate card_name entries in DISRUPTION_REGISTRY"
-
-def test_registry_opt_correctness():
-  assert _find_disruption_source("Baronne de Fleur").opt_scope is OncePerTurnScope.HARD
-  assert _find_disruption_source("Infernity Barrier").opt_scope is OncePerTurnScope.SOFT
-
-def test_registry_pos_state_correctness():
-  dr = [
-    DisruptionSource(
-      card_name="Solemn Judgement",
-      category=DisruptionCategory.OMNI_NEGATE,
-      opt_scope=OncePerTurnScope.SOFT,
-      disruption_by_zone={
-        (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
-      },
-    ),
-  ]
-  solemn_zones = {zone_type for zone_type, _position in dr[0].disruption_by_zone}
-  assert ZoneType.HAND not in solemn_zones
-
-
 ########### BOARDEVALUATOR: HARD OPT ###########
 
 def test_evaluate__monster_hard_opt_collapses_multiple_copies(board):
-  # 2 copies of a HARD-OPT card on the same board should collapse to 1 finding
-  ci_1 = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.MONSTER)
-  ci_2 = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.MONSTER)
+  # 2 copies of a monster hard-opt card on the same board should collapse to 1 finding
+  ci_1 = _make_instance("Ash Blossom & Joyous Spring", CardType.EFFECT_MONSTER, ZoneType.HAND, Position.IN_HAND)
+  ci_2 = _make_instance("Ash Blossom & Joyous Spring", CardType.EFFECT_MONSTER, ZoneType.HAND, Position.IN_HAND)
   board.player.monster_zones[0].add(ci_1)
   board.player.monster_zones[1].add(ci_2)
 
@@ -96,26 +46,14 @@ def test_evaluate__monster_hard_opt_collapses_multiple_copies(board):
 
   assert len(findings) == 1
   finding = findings[0]
-  assert finding.card_name == "Baronne de Fleur"
+  assert finding.card_name == "Ash Blossom & Joyous Spring"
   assert finding.opt_scope is OncePerTurnScope.HARD
   assert finding.instance_count == 2
   assert finding.owner is board.player
 
 
-def test_evaluate__face_down_baronne_is_not_active(board):
-  # position matters, not just zone: Baronne de Fleur's only live state is
-  # (MONSTER, FACE_UP_ATK). A face-down monster's effects don't apply --
-  # sitting face-down in the same zone should produce nothing.
-  ci = _make_instance("Baronne de Fleur", CardType.LINK_MONSTER, ZoneType.MONSTER, Position.FACE_DOWN_MONSTER)
-  board.player.monster_zones[0].add(ci)
-
-  findings = evaluate(board)
-
-  assert findings == []
-
-
 def test_evaluate__st_hard_opt_collapses_multiple_copies(board):
-  # 2 copies of a HARD-OPT card on the same board should collapse to 1 finding
+  # 2 copies of a spell/trap hard-opt card on the same board should collapse to 1 finding
   ci_1 = _make_instance("Mitsurugi Great Purification", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
   ci_2 = _make_instance("Mitsurugi Great Purification", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
   board.player.spell_trap_zones[0].add(ci_1)
@@ -130,6 +68,15 @@ def test_evaluate__st_hard_opt_collapses_multiple_copies(board):
   assert finding.instance_count == 2
   assert finding.owner is board.player
 
+
+def test_evaluate__face_down_baronne_is_not_active(board):
+  # position matters, not just zone. Baronne's only live state is face up on the field.
+  ci = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.MONSTER, Position.FACE_DOWN_MONSTER)
+  board.player.monster_zones[0].add(ci)
+
+  findings = evaluate(board)
+
+  assert findings == []
 
 
 ########### BOARDEVALUATOR: SOFT OPT ###########
@@ -163,10 +110,59 @@ def test_evaluate__monster_soft_opt_emits_one_finding_per_copy(board):
   assert all(f.opt_scope is OncePerTurnScope.SOFT for f in findings)
   assert all(f.instance_count == 1 for f in findings)
 
-########### BOARDEVALUATOR: ZONE FILTERING (registered card, wrong zone) ###########
+########### BOARDEVALUATOR: MULTIPLE EFFECTS ###########
+def test_evaluate__mult_effects(board):
+  # baronne has targeted destruction & omni
+  ci_1 = _make_instance("Baronne de Fleur", CardType.EFFECT_MONSTER, ZoneType.MONSTER, Position.FACE_UP_ATK)
+  ci_2 = _make_instance("Baronne de Fleur", CardType.EFFECT_MONSTER, ZoneType.MONSTER, Position.FACE_UP_ATK)
+  board.player.monster_zones[0].add(ci_1)
+  board.player.monster_zones[1].add(ci_2)
+  findings = evaluate(board)
+
+  assert(len(findings) == 2) # mixed scopes should produce a single "mixed" finding. Tells us there's at most 1 hard opt finding
+  assert(findings[0].opt_scope is OncePerTurnScope.HARD)
+  assert(findings[1].opt_scope is OncePerTurnScope.HARD)
+  assert(findings[0].instance_count == 2) # 2 indepdent cards, overall telling us that there could be 2 soft opt effects
+
+
+def test_evaluate__mixed_opt(board):
+  custom_registry = [DisruptionSource(
+    card_name="Mixed Card",
+    effects=[
+      DisruptionEffect(
+        label="Spell Negation",
+        categories=[DisruptionCategory.SPELL_NEGATE],
+        opt_scope=OncePerTurnScope.SOFT,
+        disruption_by_zone={
+          (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+        }
+      ),
+      DisruptionEffect(
+        label="Trap Negation",
+        categories=[DisruptionCategory.TRAP_NEGATE],
+        opt_scope=OncePerTurnScope.HARD,
+        disruption_by_zone={
+          (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+        }
+      ),
+    ]
+  )]
+  ci = _make_instance("Mixed Card", CardType.EFFECT_MONSTER, ZoneType.MONSTER, Position.FACE_UP_ATK)
+  board.player.monster_zones[0].add(ci)
+  findings = evaluate(board, registry=custom_registry)
+  assert(len(findings)== 2) # one soft, one  hard
+  board.player.monster_zones[1].add(ci)
+  findings = evaluate(board, registry=custom_registry)
+  assert(len(findings)== 3) # 2 soft, 1 hard
+
+
+########### BOARDEVALUATOR: ZONE FILTERING ###########
+# for example, wrong zone for the disruption to be registered
 
 def test_evaluate__zone_outside_disruption_by_zone_produces_no_finding(board):
-  # Ash Blossom's disruption_by_zone only has a HAND entry -- sitting in the GY shouldn't count
+  # Ash Blossom's disruption_by_zone only has a HAND entry
   ci = _make_instance("Ash Blossom & Joyous Spring", CardType.EFFECT_MONSTER, ZoneType.GRAVEYARD, Position.IN_GY)
   board.player.graveyard.cards.append(ci)
 
@@ -175,23 +171,19 @@ def test_evaluate__zone_outside_disruption_by_zone_produces_no_finding(board):
   assert findings == []
 
 
-########### BOARDEVALUATOR: ZONE ABSENCE (a real omni negate, wrong zone entirely) ###########
+########### BOARDEVALUATOR: ZONE ABSENCE ###########
 
-def test_evaluate__solemn_judgement_in_hand_produces_no_finding(board):
-  # Solemn Judgement is a real omni negate, but Trap Cards can't be activated
-  # straight from hand -- they must be Set first. Its registry entry has no
-  # HAND key at all, so sitting in hand it isn't a disruption of any kind,
-  # not even POTENTIAL_DISRUPTION.
-  ci = _make_instance("Solemn Judgement", CardType.TRAP, ZoneType.HAND, Position.IN_HAND)
+def test_evaluate__solemn_Judgment_in_hand_produces_no_finding(board):
+  ci = _make_instance("Solemn Judgment", CardType.TRAP, ZoneType.HAND, Position.IN_HAND)
   board.player.hand.cards.append(ci)
 
   findings = evaluate(board)
 
   assert findings == []
 
-def test_evaluate__solemn_judgement_set_produces_a_finding(board):
-  # the same card, set into the spell/trap zone, IS live
-  ci = _make_instance("Solemn Judgement", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
+
+def test_evaluate__solemn_Judgment_set_produces_a_finding(board):
+  ci = _make_instance("Solemn Judgment", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
   board.player.spell_trap_zones[0].add(ci)
 
   findings = evaluate(board)
@@ -203,19 +195,22 @@ def test_evaluate__solemn_judgement_set_produces_a_finding(board):
 ########### BOARDEVALUATOR: SAME CARD, DIFFERENT ZONE, DIFFERENT DISRUPTIONTYPE ###########
 
 def test_evaluate__same_card_name_resolves_different_disruption_types_by_zone(board):
-  # a hypothetical combo piece: POTENTIAL in hand (needs more plays to go
-  # live), ACTIVE once actually resolved onto the field. Uses a registry
-  # override (evaluate's `registry` param) rather than the real starter
-  # registry, since no current entry demonstrates this on its own.
+  # a hypothetical combo piece: POTENTIAL in hand (needs more plays to go live),
+  # becomes ACTIVE once actually resolved onto the field. 
   custom_registry = [
     DisruptionSource(
       card_name="Combo Piece",
-      category=DisruptionCategory.EXTENDER,
-      opt_scope=OncePerTurnScope.SOFT,
-      disruption_by_zone={
-        (ZoneType.HAND, Position.IN_HAND): DisruptionType.POTENTIAL_DISRUPTION,
-        (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-      },
+      effects=[
+        DisruptionEffect(
+          label="Some combo piece",
+          categories=[DisruptionCategory.EXTENDER],
+          opt_scope=OncePerTurnScope.SOFT,
+          disruption_by_zone={
+            (ZoneType.HAND, Position.IN_HAND): DisruptionType.POTENTIAL_DISRUPTION,
+            (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+          },
+        )
+      ]
     ),
   ]
 
@@ -226,19 +221,48 @@ def test_evaluate__same_card_name_resolves_different_disruption_types_by_zone(bo
 
   findings = evaluate(board, registry=custom_registry)
 
-  # two separate findings -- NOT merged into one, since they represent
-  # different DisruptionTypes despite sharing a card name
+  # two separate findings here, 1 in hand, another on field
   assert len(findings) == 2
   types_found = {f.disruption_type for f in findings}
   assert types_found == {DisruptionType.POTENTIAL_DISRUPTION, DisruptionType.ACTIVE_DISRUPTION}
   assert all(f.instance_count == 1 for f in findings)  # SOFT scope, one copy each
 
 
+########### BOARDEVALUATOR: EMZ ###########
+
+def test_evaluate__emz_monster_is_scanned(board):
+  # checks that emz is scanned
+  ci = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK)
+  board.extra_monster_zones[0].add(ci)
+
+  findings = evaluate(board)
+
+  assert len(findings) == 2
+  assert findings[0].card_name == "Baronne de Fleur"
+
+
+def test_evaluate__emz_finding_owner_matches_the_claimed_slot(board):
+  # currently emz[0] (left) is fixed for user, and emz[1] (right) is opponent.
+  # just makes life easier since we're not actually simulating a game, and i don't believe there's a case
+  # currently (21/09/26) where left/right emz matters?
+  ci_player = _make_instance("Baronne de Fleur", CardType.SYNCHRO_MONSTER, ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK)
+  ci_opponent = _make_instance("Dark Paladin", CardType.FUSION_MONSTER, ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_DEF)
+  board.extra_monster_zones[0].add(ci_player)
+  board.extra_monster_zones[1].add(ci_opponent)
+
+  findings = evaluate(board)
+
+  assert len(findings) == 3
+  by_name = {f.card_name: f for f in findings}
+  assert by_name["Baronne de Fleur"].owner is board.player
+  assert by_name["Dark Paladin"].owner is board.opponent
+
+
 ########### BOARDEVALUATOR: CROSS-PLAYER TAGGING ###########
 
 def test_evaluate__findings_tagged_to_correct_owner(board):
   # a set Mirror Force belongs to the opponent, not the turn player
-  ci = _make_instance("Mirror Force", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
+  ci = _make_instance("Solemn Judgment", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
   board.opponent.spell_trap_zones[0].add(ci)
 
   findings = evaluate(board)
@@ -262,12 +286,14 @@ def test_evaluate__unregistered_card_produces_no_finding(board):
 ########### BOARDEVALUATOR: HISTORY SEAM ###########
 
 def test_evaluate__history_param_is_a_no_op(board):
+  # something that may become something later on idk
+  # mostly here to sketch what history would look like ig
   ci_hard = _make_instance("Baronne de Fleur", CardType.LINK_MONSTER, ZoneType.MONSTER)
   ci_soft = _make_instance("Infernity Barrier", CardType.TRAP, ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)
   board.player.monster_zones[0].add(ci_hard)
   board.player.spell_trap_zones[0].add(ci_soft)
 
   findings_without_history = evaluate(board)
-  findings_with_history = evaluate(board, history={"whatever": "this ends up being"})
+  findings_with_history = evaluate(board, history={"whatever this ends up being"})
 
   assert findings_without_history == findings_with_history

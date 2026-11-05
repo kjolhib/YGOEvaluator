@@ -1,9 +1,9 @@
 {
   "id": 14558127,
-  "name": "Ash Blossom & Joyous Spring",
+  "name": "Test Monster",
   "type": "Effect Monster",
   "frameType": "effect",
-  "desc": "If you would Special Summon a monster(s), except during the Damage Step (Quick Effect): You can discard this card; negate that Special Summon, then if this effect was activated using a card that was sent to the GY to activate its effect, banish that card. You can only use this effect of \"Ash Blossom & Joyous Spring\" once per turn.",
+  "desc": "Test description.",
   "atk": 0,
   "def": 1800,
   "level": 3,
