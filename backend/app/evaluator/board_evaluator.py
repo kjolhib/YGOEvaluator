@@ -5,14 +5,10 @@ from app.core.board_state import BoardState
 from app.core.player import Player
 from app.core.zones import Zone
 from app.static.type_defs.card import CardInstance
-from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
+from app.evaluator.disruption_source import DisruptionEffect, DisruptionSource, lookup_disruption
 from app.static.registry import GLOBAL_REGISTRY as DISRUPTION_REGISTRY
 from app.evaluator.disruption_finding import DisruptionFinding
 from app.static.type_defs.type_disruption import OncePerTurnScope, DisruptionType
-
-# Zones scanned for disruptions.
-# Deliberately excludes GY/banishment for now - too complex
-_IN_SCOPE_ZONES = ("hand", "monster_zones", "spell_trap_zones", "field_spell_zones")
 
 
 def _collect_instances(player: Player, owned_emz_zone: Optional[Zone] = None) -> list[CardInstance]:
@@ -40,6 +36,37 @@ def _collect_instances(player: Player, owned_emz_zone: Optional[Zone] = None) ->
 
   return instances
 
+def _find(
+    player: Player,
+    matches: dict[tuple[str, str, DisruptionType], tuple[DisruptionEffect, list[CardInstance]]],
+) -> list[DisruptionFinding]:
+  findings: list[DisruptionFinding] = []
+  for (card_name, label, disruption_type), (source, group) in matches.items():
+    if source.opt_scope is OncePerTurnScope.HARD:
+      # However many copies, a hard OPT restriction collapses them to one usable effect this turn
+      findings.append(DisruptionFinding(
+        owner=player,
+        card_name=card_name,
+        effect_label=label,
+        categories=source.categories,
+        disruption_type=disruption_type,
+        opt_scope=source.opt_scope,
+        instance_count=len(group),
+      ))
+    else: # soft
+      # SOFT: each copy is independently live: one finding per instance.
+      for _ in group:
+        findings.append(DisruptionFinding(
+          owner=player,
+          card_name=card_name,
+          effect_label=label,
+          categories=source.categories,
+          disruption_type=disruption_type,
+          opt_scope=source.opt_scope,
+          instance_count=1,
+        ))
+  return findings
+
 def _findings_for_player(
   player: Player,
   registry: list[DisruptionSource],
@@ -61,54 +88,21 @@ def _findings_for_player(
   # Keyed by (name, type), not just name: the same card name can resolve to a different DisruptionType depending on which (zone, position) a given copy is in (see DisruptionSource.disruption_by_zone). 
   # 
   # So, two copies of the same card in different states must not be merged into one ambiguous group.
-  matches: dict[tuple[str, DisruptionType], tuple[DisruptionSource, list[CardInstance]]] = {}
+  matches: dict[tuple[str, str, DisruptionType], tuple[DisruptionEffect, list[CardInstance]]] = {}
 
   for card_instance in _collect_instances(player, owned_emz_zone):
-    source = lookup_disruption(card_instance, registry)
-    if source is None:
+    found_effects = lookup_disruption(card_instance, registry)
+    if not found_effects:
       continue
 
-    disruption_type = source.disruption_by_zone[(card_instance.current_zone_type, card_instance.current_position)]
-    key = (source.card_name, disruption_type)
-    _, group = matches.setdefault(key, (source, []))
-    group.append(card_instance)
+    for effect in found_effects:
+      disruption_type = effect.disruption_by_zone[(card_instance.current_zone_type, card_instance.current_position)]
+      key = (card_instance.card.name, effect.label, disruption_type)
+      _, group = matches.setdefault(key, (effect, []))
+      group.append(card_instance)
 
-  findings: list[DisruptionFinding] = []
-  for (card_name, disruption_type), (source, group) in matches.items():
-    if source.opt_scope is OncePerTurnScope.HARD:
-      # However many copies, a hard OPT restriction collapses them to one usable effect this turn
-      findings.append(DisruptionFinding(
-        owner=player,
-        card_name=card_name,
-        category=source.category,
-        disruption_type=disruption_type,
-        opt_scope=source.opt_scope,
-        instance_count=len(group),
-      ))
-    elif source.opt_scope is OncePerTurnScope.SOFT:
-      # SOFT: each copy is independently live: one finding per instance.
-      for _ in group:
-        findings.append(DisruptionFinding(
-          owner=player,
-          card_name=card_name,
-          category=source.category,
-          disruption_type=disruption_type,
-          opt_scope=source.opt_scope,
-          instance_count=1,
-        ))
-    else:
-      # Mixed, some cards may have a mix of hard opt effects with soft opt
-      # Currently just derived as "mixed". May be extended in the future
-      findings.append(DisruptionFinding(
-        owner=player,
-        card_name=card_name,
-        category=source.category,
-        disruption_type=disruption_type,
-        opt_scope=source.opt_scope,
-        instance_count=len(group) # a single finding for a mixed type, with instance count being the number of different independent cards on the field.
-        # Since currently the evaluator cannot determine which effect is which scope, it's best to show that this disruption contains hard opt (hence only 1 finding, not appending a finding for each group), but also include the number of independent cards (hence this can give an indication of how many possible soft opt effects there are)
-      ))
-
+  findings: list[DisruptionFinding] = _find(player, matches)
+  
   return findings
 
 
