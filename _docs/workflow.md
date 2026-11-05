@@ -1,6 +1,6 @@
 # Yu-Gi-Oh Decision Evaluator — Workflow & Architecture Notes
 status: [fetcher]
-last updated: 30-07-2026
+last updated: 20-10-2026
 
 ## Project Goal
 
@@ -81,7 +81,7 @@ This however does mean that this project cannot view or provide a service for cl
 
 Card pools, registries (e.g. `DisruptionSource` entries), and format configs
 currently live as hand-edited flat files (`card_pool.txt`, `cards.json`,
-small Python dict literals for registries) -- deliberately, since these are
+Python modules for registries) -- deliberately, since these are
 edited by hand at the scale of one format's worth of cards (~50-100) and
 flat files are easy to diff/review in git.
 
@@ -133,11 +133,16 @@ handed to the evaluator without side-effect concerns.
 Separate from the engine by design — reads `BoardState` only, never mutates
 it.
 
-- `DisruptionSource` — registry entry: "this card, in this (zone, position),
-  under these conditions, represents a live disruption." Both zone and
-  position matter independently -- a face-down monster or a Trap Card still
-  in hand isn't live even if the same card is a registered disruption in
-  some other state. See `_docs/backend/evaluator/DisruptionSource.md`.
+- `DisruptionSource` — registry entry for one card, described per effect: a
+  list of `DisruptionEffect`s. Each effect carries its own category (or
+  categories, if one effect does several kinds of disruption), its own
+  once-per-turn scope, and the `(zone, position)` states in which it is live
+  — i.e. "this effect, in this (zone, position), represents a live
+  disruption." Both zone and position matter independently -- a face-down
+  monster or a Trap Card still in hand isn't live even if the same card is a
+  registered disruption in some other state. Once-per-turn scope lives on the
+  effect, not the card, because modern cards have several effects with
+  different clauses. See `_docs/backend/evaluator/disruption_source.md`.
 - `DisruptionType` - provides distinct classifications of disruptions.
   - For example, a Baronne is considered an `ActiveDisruption`.
   - Cupsy Yummy Way is considered a `PotentialDisruption`.
