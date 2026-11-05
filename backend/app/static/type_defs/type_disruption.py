@@ -15,8 +15,7 @@ class DisruptionType(Enum):
 class OncePerTurnScope(Enum):
   """
   Enum classifying whether a card's once-per-turn restriction is by name
-  `HARD`, `SOFT`, `MIXED`. Mixed is reserved for those cards whose effects 
-  have mixed opt scope. So the evaluator treats it as a separate filter.
+  `HARD`, `SOFT`.
 
   E.g. Baronne de Fleur is `HARD` opt. however many copies are visible, they
   collapse to at most one usable effect this turn. Infernity Barrier is
@@ -24,7 +23,6 @@ class OncePerTurnScope(Enum):
   """
   HARD = auto()
   SOFT = auto()
-  MIXED = auto()
 
 class DisruptionCategory(Enum):
   """
@@ -42,7 +40,7 @@ class DisruptionCategory(Enum):
   TRAP_NEGATE = auto()
   SPELL_TRAP_NEGATE = auto()
   MONSTER_NEGATE = auto()
-  TARGETED_REMOVAL = auto()
+  TARGETED_DESTRUCTION = auto()
   HANDTRAP = auto()
   FLOODGATE = auto()
   BOARD_BREAKER = auto()

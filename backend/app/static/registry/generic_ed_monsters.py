@@ -1,4 +1,4 @@
-from app.evaluator.disruption_source import DisruptionSource
+from app.evaluator.disruption_source import DisruptionSource, DisruptionEffect
 from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 from app.static.type_defs.type_zones import ZoneType
 from app.static.type_defs.type_cards import Position
@@ -7,13 +7,29 @@ from app.static.type_defs.type_cards import Position
 ENTRIES: list[DisruptionSource] = [
   DisruptionSource(
     card_name="Baronne de Fleur",
-    category=[DisruptionCategory.OMNI_NEGATE, DisruptionCategory.TARGETED_REMOVAL],
-    opt_scope=OncePerTurnScope.HARD,
-    disruption_by_zone={
-      (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-      (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
-      (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
-      (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-    },
+    effects=[
+      DisruptionEffect(
+        label="Omni Negation",
+        categories=[DisruptionCategory.OMNI_NEGATE],
+        opt_scope=OncePerTurnScope.HARD,
+        disruption_by_zone={
+          (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+        }
+      ),
+      DisruptionEffect(
+        label="Targeted Destruction",
+        categories=[DisruptionCategory.TARGETED_DESTRUCTION],
+        opt_scope=OncePerTurnScope.HARD,
+        disruption_by_zone={
+          (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+        }
+      ),
+    ]
   ),
 ] 

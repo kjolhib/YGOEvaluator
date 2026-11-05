@@ -57,8 +57,8 @@ def lookup_disruption(
       check against, e.g. `DISRUPTION_REGISTRY`
 
   Returns:
-    Optional[DisruptionSource]: the matching registry entry if`card_instance.card.name` is a registered disruption AND `(card_instance.current_zone_type, card_instance.current_position)` is a key in that entry's `disruption_by_zone`.
-    `None`: otherwise. (unregistered card, or registered but not currently in a (zone, position) state where it's live - e.g. Ash Blossom already discarded to GY or Solemn Judgment still in hand).
+    list[DisruptionEffect]: the matching registry entry if`card_instance.card.name` is a registered disruption AND `(card_instance.current_zone_type, card_instance.current_position)` is a key in that entry's `disruption_by_zone`.
+    `[]`: otherwise. (unregistered card, or registered but not currently in a (zone, position) state where it's live - e.g. Ash Blossom already discarded to GY or Solemn Judgment still in hand).
   """
   source = next((src for src in registry if src.card_name == card_instance.card.name), None)
   if source is None:

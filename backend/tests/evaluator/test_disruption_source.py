@@ -7,7 +7,7 @@ import itertools
 
 import pytest
 
-from app.evaluator.disruption_source import DisruptionSource, lookup_disruption
+from app.evaluator.disruption_source import DisruptionEffect, DisruptionSource, lookup_disruption
 from app.static.registry import GLOBAL_REGISTRY, GLOBAL_REGISTRY_BY_NAME
 from app.static.type_defs.card import Card, CardInstance
 from app.static.type_defs.type_cards import CardType, Position
@@ -43,8 +43,12 @@ def test_lookup__matches_on_name_only_not_card_type():
 def test_lookup__name_match_is_exact():
   ci = _instance("Solemn Judgement", ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST, CardType.TRAP)  # sic
 
-  assert lookup_disruption(ci, GLOBAL_REGISTRY) is None
+  assert lookup_disruption(ci, GLOBAL_REGISTRY) is []
 
+
+def test_lookup__multiple_effects():
+  ci = _instance("Baronne de Fleur", ZoneType.MONSTER, Position.FACE_UP_ATK, CardType.SYNCHRO_MONSTER)
+  assert len(lookup_disruption(ci, GLOBAL_REGISTRY)) == 2
 
 ########### MISSES ###########
 
@@ -73,7 +77,7 @@ def test_lookup__flipped_up_trap_is_no_longer_live():
   assert lookup_disruption(ci, GLOBAL_REGISTRY) is None
 
 
-########### REGISTRY ARGUMENT ###########
+########### REGISTRY AS ARGUMENT ###########
 
 def test_lookup__empty_registry_returns_none():
   ci = _instance("Solemn Judgment", ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST, CardType.TRAP)
@@ -85,9 +89,16 @@ def test_lookup__only_consults_the_registry_it_is_given():
   custom = [
     DisruptionSource(
       card_name="Custom Card",
-      category=[DisruptionCategory.FLOODGATE],
-      opt_scope=OncePerTurnScope.SOFT,
-      disruption_by_zone={(ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION},
+      effects=[
+        DisruptionEffect(
+          label="Floodgate",
+          categories=[DisruptionCategory.FLOODGATE],
+          opt_scope=OncePerTurnScope.SOFT,
+          disruption_by_zone={
+            (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION
+          }
+        ),
+      ]
     ),
   ]
   custom_card = _instance("Custom Card", ZoneType.MONSTER, Position.FACE_UP_ATK)
@@ -96,6 +107,34 @@ def test_lookup__only_consults_the_registry_it_is_given():
   assert lookup_disruption(custom_card, custom) is custom[0]
   assert lookup_disruption(real_card, custom) is None
   assert lookup_disruption(custom_card, GLOBAL_REGISTRY) is None
+
+def test_disruption_source__reject_empty_fields():
+  with pytest.raises(ValueError):
+    DisruptionSource(card_name="Empty Effect", effects=[])
+
+  with pytest.raises(ValueError):
+    DisruptionSource(card_name="", effects=[
+        DisruptionEffect(
+        label="Floodgate",
+        categories=[DisruptionCategory.FLOODGATE],
+        opt_scope=OncePerTurnScope.SOFT,
+        disruption_by_zone={
+          (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION
+        }
+      ),
+    ])
+
+  with pytest.raises(ValueError):
+    DisruptionSource(card_name="Empty Disruption Zone", effects=[
+        DisruptionEffect(
+        label="Floodgate",
+        categories=[DisruptionCategory.FLOODGATE],
+        opt_scope=OncePerTurnScope.SOFT,
+        disruption_by_zone={
+          # empty 
+        }
+      ),
+    ])
 
 
 ########### EXHAUSTIVE: EVERY REAL ENTRY ###########
