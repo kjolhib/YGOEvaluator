@@ -13,7 +13,14 @@ ENTRIES: list[DisruptionSource] = [
         categories=[DisruptionCategory.OMNI_NEGATE],
         opt_scope=OncePerTurnScope.HARD,
         disruption_by_zone={
-          (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
+          (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION
+        }
+      ),
+      DisruptionEffect(
+        label="Revive from GY",
+        categories=[DisruptionCategory.POTENTIAL_DISRUPTION],
+        opt_scope=OncePerTurnScope.HARD,
+        disruption_by_zone={
           (ZoneType.GRAVEYARD, Position.IN_GY): DisruptionType.POTENTIAL_DISRUPTION
         }
       ),

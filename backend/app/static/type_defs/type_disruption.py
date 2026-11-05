@@ -45,3 +45,4 @@ class DisruptionCategory(Enum):
   FLOODGATE = auto()
   BOARD_BREAKER = auto()
   EXTENDER = auto()
+  POTENTIAL_DISRUPTION = auto()

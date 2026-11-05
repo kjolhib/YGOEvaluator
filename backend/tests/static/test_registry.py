@@ -14,7 +14,7 @@ import pytest
 
 import app.static.registry as registry_pkg
 from app.static.registry import GLOBAL_REGISTRY, GLOBAL_REGISTRY_BY_NAME
-from app.evaluator.disruption_source import DisruptionSource
+from app.evaluator.disruption_source import DisruptionSource, DisruptionEffect
 
 from app.static.type_defs.type_cards import Position
 from app.static.type_defs.type_zones import ZoneType
@@ -27,9 +27,16 @@ def _source(name: str) -> DisruptionSource:
   """
   return DisruptionSource(
     card_name=name,
-    category=[DisruptionCategory.HANDTRAP],
-    opt_scope=OncePerTurnScope.HARD,
-    disruption_by_zone={(ZoneType.HAND, Position.IN_HAND): DisruptionType.ACTIVE_DISRUPTION},
+    effects=[
+      DisruptionEffect(
+        label="Omni Negation",
+        categories=[DisruptionCategory.OMNI_NEGATE],
+        opt_scope=OncePerTurnScope.SOFT,
+        disruption_by_zone={
+          (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
+        }
+      ),
+    ],
   )
 
 
@@ -44,12 +51,13 @@ def test_global_registry_is_not_empty():
 def test_entry_fields_have_correct_types(source):
   assert isinstance(source, DisruptionSource)
   assert isinstance(source.card_name, str)
-  assert isinstance(source.category, list), "Disruption categories must be a list."
-  assert all(isinstance(item, DisruptionCategory) for item in source.category)
-  assert isinstance(source.opt_scope, OncePerTurnScope)
-  assert isinstance(source.disruption_by_zone, dict)
+  assert isinstance(source.effects, list), "Disruption effects must be a list."
 
-  for (zone_type, position), disruption_type in source.disruption_by_zone.items():
+  assert all(isinstance(item, DisruptionEffect) for item in source.effects)
+  assert isinstance(source.effects[0].opt_scope, OncePerTurnScope)
+  assert isinstance(source.effects[0].disruption_by_zone, dict)
+
+  for (zone_type, position), disruption_type in source.effects[0].disruption_by_zone.items():
     assert isinstance(zone_type, ZoneType)
     assert isinstance(position, Position)
     assert isinstance(disruption_type, DisruptionType)
@@ -197,7 +205,7 @@ def test_load_entries_raises_when_a_module_has_no_entries(fake_registry):
 
 _EXPECTED_SCOPE_AND_CATEGORIES = {
   "Ash Blossom & Joyous Spring": (OncePerTurnScope.HARD, {DisruptionCategory.HANDTRAP}),
-  "Baronne de Fleur": (OncePerTurnScope.HARD, {DisruptionCategory.OMNI_NEGATE, DisruptionCategory.TARGETED_REMOVAL}),
+  "Baronne de Fleur": (OncePerTurnScope.HARD, {DisruptionCategory.OMNI_NEGATE, DisruptionCategory.TARGETED_DESTRUCTION}),
   "Mitsurugi Great Purification": (OncePerTurnScope.HARD, {DisruptionCategory.OMNI_NEGATE}),
   "Infernity Barrier": (OncePerTurnScope.SOFT, {DisruptionCategory.OMNI_NEGATE}),
   "Mirror Force": (OncePerTurnScope.SOFT, {DisruptionCategory.BOARD_BREAKER}),
@@ -211,26 +219,26 @@ def test_opt_scope_and_categories(name):
   expected_scope, expected_categories = _EXPECTED_SCOPE_AND_CATEGORIES[name]
   source = GLOBAL_REGISTRY_BY_NAME[name]
 
-  assert source.opt_scope is expected_scope
-  assert set(source.category) == expected_categories
+  assert source.effects[0].opt_scope is expected_scope
+  assert set([category for effect in source.effects for category in effect.categories]) == expected_categories
 
 
 @pytest.mark.parametrize("name", ["Solemn Judgment", "Mirror Force", "Infernity Barrier"])
 def test_set_traps_are_only_live_face_down(name):
   # a trap that flipped face up (or is still in hand) is not a live disruption
-  states = set(GLOBAL_REGISTRY_BY_NAME[name].disruption_by_zone)
+  states = set(GLOBAL_REGISTRY_BY_NAME[name].effects[0].disruption_by_zone)
   assert states == {(ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)}
 
 
 def test_ash_blossom_is_only_live_in_hand():
-  assert set(GLOBAL_REGISTRY_BY_NAME["Ash Blossom & Joyous Spring"].disruption_by_zone) == {
+  assert set(GLOBAL_REGISTRY_BY_NAME["Ash Blossom & Joyous Spring"].effects[0].disruption_by_zone) == {
     (ZoneType.HAND, Position.IN_HAND)
   }
 
 
 @pytest.mark.parametrize("name", ["Baronne de Fleur", "Dark Paladin"])
 def test_extra_deck_monsters_are_active_face_up_in_monster_zone_and_emz(name):
-  assert GLOBAL_REGISTRY_BY_NAME[name].disruption_by_zone == {
+  assert GLOBAL_REGISTRY_BY_NAME[name].effects[0].disruption_by_zone == {
     (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
     (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
     (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
@@ -239,7 +247,7 @@ def test_extra_deck_monsters_are_active_face_up_in_monster_zone_and_emz(name):
 
 
 def test_mitsurugi_is_active_when_set_and_potential_in_gy():
-  assert GLOBAL_REGISTRY_BY_NAME["Mitsurugi Great Purification"].disruption_by_zone == {
+  assert GLOBAL_REGISTRY_BY_NAME["Mitsurugi Great Purification"].effects[0].disruption_by_zone == {
     (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
     (ZoneType.GRAVEYARD, Position.IN_GY): DisruptionType.POTENTIAL_DISRUPTION,
   }
