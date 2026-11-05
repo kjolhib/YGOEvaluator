@@ -40,7 +40,12 @@ def _source(name: str) -> DisruptionSource:
   )
 
 
-########### 1. FILE WELL-FORMEDNESS ###########
+########### 1. ENTRY WELL-FORMEDNESS ###########
+
+# every (card, effect) pair, so a failure names both: "Baronne de Fleur::Targeted Destruction"
+_ALL_EFFECTS = [(source.card_name, effect) for source in GLOBAL_REGISTRY for effect in source.effects]
+_ALL_EFFECT_IDS = [f"{name}::{effect.label}" for name, effect in _ALL_EFFECTS]
+
 
 def test_global_registry_is_not_empty():
   # guards against discovery silently finding nothing
@@ -48,37 +53,47 @@ def test_global_registry_is_not_empty():
 
 
 @pytest.mark.parametrize("source", GLOBAL_REGISTRY, ids=lambda s: s.card_name)
-def test_entry_fields_have_correct_types(source):
-  assert isinstance(source, DisruptionSource)
-  assert isinstance(source.card_name, str)
-  assert isinstance(source.effects, list), "Disruption effects must be a list."
-
-  assert all(isinstance(item, DisruptionEffect) for item in source.effects)
-  assert isinstance(source.effects[0].opt_scope, OncePerTurnScope)
-  assert isinstance(source.effects[0].disruption_by_zone, dict)
-
-  for (zone_type, position), disruption_type in source.effects[0].disruption_by_zone.items():
-    assert isinstance(zone_type, ZoneType)
-    assert isinstance(position, Position)
-    assert isinstance(disruption_type, DisruptionType)
-
-
-@pytest.mark.parametrize("source", GLOBAL_REGISTRY, ids=lambda s: s.card_name)
 def test_entry_card_name_is_clean(source):
   # lookups are exact string matches, ignoring whitespace
+  assert isinstance(source.card_name, str)
   assert source.card_name
   assert source.card_name == source.card_name.strip()
 
 
 @pytest.mark.parametrize("source", GLOBAL_REGISTRY, ids=lambda s: s.card_name)
-def test_entry_has_categories_without_duplicates(source):
-  assert len(source.category) > 0, "every entry needs at least one category"
-  assert len(set(source.category)) == len(source.category), "duplicate category"
+def test_entry_effects_are_a_list_of_effects_with_unique_labels(source):
+  assert isinstance(source.effects, list), "Disruption effects must be a list."
+  assert len(source.effects) > 0
+  assert all(isinstance(effect, DisruptionEffect) for effect in source.effects)
+
+  # effects are told apart by label (findings, hover tab, later graph nodes)
+  labels = [effect.label for effect in source.effects]
+  assert all(label.strip() for label in labels), "blank effect label"
+  assert len(set(labels)) == len(labels), f"duplicate effect label in {source.card_name}"
 
 
-@pytest.mark.parametrize("source", GLOBAL_REGISTRY, ids=lambda s: s.card_name)
-def test_entry_has_at_least_one_live_state(source):
-  assert len(source.disruption_by_zone) > 0
+@pytest.mark.parametrize(("name", "effect"), _ALL_EFFECTS, ids=_ALL_EFFECT_IDS)
+def test_effect_fields_have_correct_types(name, effect):
+  assert isinstance(effect.opt_scope, OncePerTurnScope)
+  assert isinstance(effect.categories, list), "Disruption categories must be a list."
+  assert all(isinstance(category, DisruptionCategory) for category in effect.categories)
+  assert isinstance(effect.disruption_by_zone, dict)
+
+  for (zone_type, position), disruption_type in effect.disruption_by_zone.items():
+    assert isinstance(zone_type, ZoneType)
+    assert isinstance(position, Position)
+    assert isinstance(disruption_type, DisruptionType)
+
+
+@pytest.mark.parametrize(("name", "effect"), _ALL_EFFECTS, ids=_ALL_EFFECT_IDS)
+def test_effect_has_categories_without_duplicates(name, effect):
+  assert len(effect.categories) > 0, "every effect needs at least one category"
+  assert len(set(effect.categories)) == len(effect.categories), "duplicate category"
+
+
+@pytest.mark.parametrize(("name", "effect"), _ALL_EFFECTS, ids=_ALL_EFFECT_IDS)
+def test_effect_has_at_least_one_live_state(name, effect):
+  assert len(effect.disruption_by_zone) > 0
 
 
 ########### 2. PACKAGE WIRING ###########
@@ -134,7 +149,7 @@ def _import_real_submodules():
 ########### 3. MODULE DISCOVERY ###########
 
 _MODULE_TEMPLATE = '''
-from app.evaluator.disruption_source import DisruptionSource
+from app.evaluator.disruption_source import DisruptionSource, DisruptionEffect
 from app.static.type_defs.type_disruption import DisruptionType, OncePerTurnScope, DisruptionCategory
 from app.static.type_defs.type_zones import ZoneType
 from app.static.type_defs.type_cards import Position
@@ -142,9 +157,14 @@ from app.static.type_defs.type_cards import Position
 ENTRIES = [
   DisruptionSource(
     card_name="{name}",
-    category=[DisruptionCategory.HANDTRAP],
-    opt_scope=OncePerTurnScope.HARD,
-    disruption_by_zone={{(ZoneType.HAND, Position.IN_HAND): DisruptionType.ACTIVE_DISRUPTION}},
+    effects=[
+      DisruptionEffect(
+        label="{name} Effect",
+        categories=[DisruptionCategory.HANDTRAP],
+        opt_scope=OncePerTurnScope.HARD,
+        disruption_by_zone={{(ZoneType.HAND, Position.IN_HAND): DisruptionType.ACTIVE_DISRUPTION}},
+      )
+    ],
   ),
 ]
 '''
@@ -202,52 +222,62 @@ def test_load_entries_raises_when_a_module_has_no_entries(fake_registry):
 
 
 ########### 4. CURATED DATA ###########
-
-_EXPECTED_SCOPE_AND_CATEGORIES = {
-  "Ash Blossom & Joyous Spring": (OncePerTurnScope.HARD, {DisruptionCategory.HANDTRAP}),
-  "Baronne de Fleur": (OncePerTurnScope.HARD, {DisruptionCategory.OMNI_NEGATE, DisruptionCategory.TARGETED_DESTRUCTION}),
-  "Mitsurugi Great Purification": (OncePerTurnScope.HARD, {DisruptionCategory.OMNI_NEGATE}),
-  "Infernity Barrier": (OncePerTurnScope.SOFT, {DisruptionCategory.OMNI_NEGATE}),
-  "Mirror Force": (OncePerTurnScope.SOFT, {DisruptionCategory.BOARD_BREAKER}),
-  "Solemn Judgment": (OncePerTurnScope.SOFT, {DisruptionCategory.OMNI_NEGATE}),
-  "Dark Paladin": (OncePerTurnScope.SOFT, {DisruptionCategory.SPELL_NEGATE}),
+# Format: <name>: <effect>
+# The effect is a list of (opt_scop, categories) tuples
+_EXPECTED_EFFECTS = {
+  "Ash Blossom & Joyous Spring": [(OncePerTurnScope.HARD, {DisruptionCategory.HANDTRAP})],
+  "Baronne de Fleur": [
+    (OncePerTurnScope.HARD, {DisruptionCategory.OMNI_NEGATE}),
+    (OncePerTurnScope.HARD, {DisruptionCategory.TARGETED_DESTRUCTION}),
+  ],
+  "Mitsurugi Great Purification": [
+    (OncePerTurnScope.HARD, {DisruptionCategory.OMNI_NEGATE}),
+    (OncePerTurnScope.HARD, {DisruptionCategory.POTENTIAL_DISRUPTION}),
+  ],
+  "Infernity Barrier": [(OncePerTurnScope.SOFT, {DisruptionCategory.OMNI_NEGATE})],
+  "Solemn Judgment": [(OncePerTurnScope.SOFT, {DisruptionCategory.OMNI_NEGATE})],
+  "Dark Paladin": [(OncePerTurnScope.SOFT, {DisruptionCategory.SPELL_NEGATE})],
 }
 
 
-@pytest.mark.parametrize("name", _EXPECTED_SCOPE_AND_CATEGORIES)
-def test_opt_scope_and_categories(name):
-  expected_scope, expected_categories = _EXPECTED_SCOPE_AND_CATEGORIES[name]
-  source = GLOBAL_REGISTRY_BY_NAME[name]
+@pytest.mark.parametrize("name", _EXPECTED_EFFECTS)
+def test_effects_opt_scope_and_categories(name):
+  actual = [(effect.opt_scope, set(effect.categories)) for effect in GLOBAL_REGISTRY_BY_NAME[name].effects]
 
-  assert source.effects[0].opt_scope is expected_scope
-  assert set([category for effect in source.effects for category in effect.categories]) == expected_categories
+  assert actual == _EXPECTED_EFFECTS[name]
 
 
-@pytest.mark.parametrize("name", ["Solemn Judgment", "Mirror Force", "Infernity Barrier"])
+@pytest.mark.parametrize("name", ["Solemn Judgment", "Infernity Barrier"])
 def test_set_traps_are_only_live_face_down(name):
   # a trap that flipped face up (or is still in hand) is not a live disruption
-  states = set(GLOBAL_REGISTRY_BY_NAME[name].effects[0].disruption_by_zone)
+  states = {state for effect in GLOBAL_REGISTRY_BY_NAME[name].effects for state in effect.disruption_by_zone}
   assert states == {(ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST)}
 
 
 def test_ash_blossom_is_only_live_in_hand():
-  assert set(GLOBAL_REGISTRY_BY_NAME["Ash Blossom & Joyous Spring"].effects[0].disruption_by_zone) == {
-    (ZoneType.HAND, Position.IN_HAND)
-  }
+  source = GLOBAL_REGISTRY_BY_NAME["Ash Blossom & Joyous Spring"]
+  states = {state for effect in source.effects for state in effect.disruption_by_zone}
+  assert states == {(ZoneType.HAND, Position.IN_HAND)}
 
 
 @pytest.mark.parametrize("name", ["Baronne de Fleur", "Dark Paladin"])
 def test_extra_deck_monsters_are_active_face_up_in_monster_zone_and_emz(name):
-  assert GLOBAL_REGISTRY_BY_NAME[name].effects[0].disruption_by_zone == {
-    (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-    (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
-    (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
-    (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
-  }
+  # every effect, not just the first: Baronne's two effects share the same live states
+  for effect in GLOBAL_REGISTRY_BY_NAME[name].effects:
+    assert effect.disruption_by_zone == {
+      (ZoneType.MONSTER, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+      (ZoneType.MONSTER, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+      (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_ATK): DisruptionType.ACTIVE_DISRUPTION,
+      (ZoneType.EXTRA_MONSTER_ZONE, Position.FACE_UP_DEF): DisruptionType.ACTIVE_DISRUPTION,
+    }
 
 
 def test_mitsurugi_is_active_when_set_and_potential_in_gy():
-  assert GLOBAL_REGISTRY_BY_NAME["Mitsurugi Great Purification"].effects[0].disruption_by_zone == {
+  negate, revive = GLOBAL_REGISTRY_BY_NAME["Mitsurugi Great Purification"].effects
+
+  assert negate.disruption_by_zone == {
     (ZoneType.SPELL_TRAP, Position.FACE_DOWN_ST): DisruptionType.ACTIVE_DISRUPTION,
+  }
+  assert revive.disruption_by_zone == {
     (ZoneType.GRAVEYARD, Position.IN_GY): DisruptionType.POTENTIAL_DISRUPTION,
   }

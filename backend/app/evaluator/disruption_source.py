@@ -38,6 +38,8 @@ class DisruptionSource:
   effects: list[DisruptionEffect]
 
   def __post_init__(self) -> None:
+    if not self.card_name.strip():
+      raise ValueError("DisruptionSource must have a non-blank card_name.")
     if not self.effects:
       raise ValueError(f"DisruptionSource {self.card_name} must have at least one effect for it to be classified as a disruption.")
     # TODO: check for duplicate effects
@@ -66,12 +68,7 @@ def lookup_disruption(
 
   current_position = (card_instance.current_zone_type, card_instance.current_position)
 
-  found_disruptions: list[DisruptionEffect] = []
-
-  # for each effect this card has, check if it's currently active in its current zone and position.
-  for effect in source.effects:
-    if current_position not in effect.disruption_by_zone:
-      return []
-    found_disruptions.append(effect)
-
-  return found_disruptions
+  # every effect of this card that is live in its current zone and position.
+  # An effect that isn't live here is skipped, not a reason to discard the rest:
+  # e.g. a set Mitsurugi Great Purification has its negate live, its GY effect not.
+  return [effect for effect in source.effects if current_position in effect.disruption_by_zone]
